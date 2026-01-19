@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # Base de Datos: El corazón donde se guardarán los reportes
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: admin_municipio
+      POSTGRES_PASSWORD: password_seguro123
+      POSTGRES_DB: reportes_db
+    ports:
+      - "5432:5432"
+
+  # Backend: Aquí irá nuestra lógica de negocio más adelante
+  backend:
+    build: ./backend
+    restart: on-failure
+    depends_on:
+      - db
+
+  # Frontend: La interfaz que usará el ciudadano
+  frontend:
+    build: ./frontend
+    restart: on-failure
