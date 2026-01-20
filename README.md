@@ -1,22 +1,18 @@
-# Sistema de Gestión de Servicios Municipales (SGSM)
+# UrbanPulse: La Red Social de Auditoría Ciudadana
 
-## 📋 Descripción
-Plataforma web integral diseñada para la centralización, reporte y seguimiento de incidencias de servicios públicos municipales (baches, alumbrado, fugas de agua).
+## 📣 Visión del Proyecto
+UrbanPulse es una plataforma de microblogging diseñada para dar voz a los ciudadanos. Inspirada en la dinámica de redes sociales como **X (Twitter)** y **Reddit**, permite a los usuarios publicar reportes sobre la realidad de su ciudad (servicios, comercios, vialidad) para que la comunidad interactúe, valide y visibilice las problemáticas mediante votos y comentarios.
 
-## 🏗️ Arquitectura de Software
-Este proyecto utiliza una arquitectura desacoplada para garantizar escalabilidad:
-- **Frontend:** [Por definir, ej. React] - Interfaz ciudadana y administrativa.
-- **Backend:** [Por definir, ej. Node.js] - API REST y lógica de negocio.
-- **Base de Datos:** PostgreSQL - Persistencia de datos relacionales.
+## 🚀 Funcionalidades Clave (MVP)
+- **Timeline Dinámico:** Un feed central donde se muestran los reportes en tiempo real.
+- **Interacción Social:** Sistema de "apoyos" (upvotes) y comentarios para jerarquizar las quejas.
+- **Categorización por Etiquetas:** Uso de hashtags o categorías dinámicas (#Baches, #Restaurantes, #Seguridad).
+- **Perfiles de Usuario:** Historial de reportes y reputación dentro de la comunidad.
+
+## 🏗️ Arquitectura Técnica
+- **Frontend:** React (SPA) para una navegación rápida y fluida.
+- **Backend:** API RESTful en Node.js para gestionar el feed y las interacciones.
+- **Infraestructura:** Dockerizado con PostgreSQL para garantizar persistencia y escalabilidad.
 
 ## 👥 Roles del Equipo
-- **TL - Tech Lead:** [Tu Nombre]
-- **BE - Backend Engineer:** [Tu Nombre]
-- **FE - Frontend Engineer:** [Tu Nombre]
-- **DO - DevOps:** [Tu Nombre]
-
-## 🛠️ Requisitos e Instalación
-- Docker & Docker Compose
-- Git
-
-> **Nota:** Proyecto en fase de desarrollo (Arranque - R1).
+- **TL / BE / FE / DO:** []
