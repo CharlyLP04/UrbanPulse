@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
 
-  # Frontend: La interfaz que usará el ciudadano
+ # Frontend: La interfaz que usará el ciudadano
   frontend:
-    build: ./frontend
+    build: ./Interfaz
     restart: on-failure
