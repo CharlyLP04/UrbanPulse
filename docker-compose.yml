@@ -21,5 +21,5 @@ services:
 
  # Frontend: La interfaz que usará el ciudadano
   frontend:
-    build: ./interfaz
+    build: ./Interfaz
     restart: on-failure
