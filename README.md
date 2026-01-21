@@ -1,184 +1,84 @@
-🏙️ UrbanPulse
+<div align="center">
 
-Plataforma de Auditoría Ciudadana y Gestión Urbana > Transformando la queja individual en presión social colectiva mediante validación comunitaria.
+# 🏙️ UrbanPulse
+### Auditoría Ciudadana & Gestión Urbana
 
-📋 Tabla de Contenidos
+_"Transformando la queja individual en presión social colectiva."_
 
-Visión del Proyecto
+[Explorar Docs 📄](#) • [Reportar Bug 🐛](#) • [Solicitar Feature ✨](#)
 
-Stack Tecnológico
+</div>
 
-Arquitectura
+---
 
-Instalación y Ejecución
+## 🧐 ¿De qué trata?
 
-Estructura del Proyecto
+**UrbanPulse** resuelve la falta de trazabilidad en los reportes de fallas urbanas. A diferencia de los portales gubernamentales tradicionales, utilizamos un modelo de **Red Social** donde la ciudadanía vota y prioriza las incidencias, generando un mapa de calor de necesidades reales validado por la comunidad.
 
-Workflow de Desarrollo
+## 📚 Documentación de Ingeniería (Fase R1)
 
-Equipo (Fase R1)
+| Documento | Descripción |
+| :--- | :--- |
+| **📄 Definición del Proyecto** | Visión del producto, alcance del MVP y solución al problema. |
+| **🗺️ Arquitectura de Información** | Diagramas de flujo, sitemap y reglas de navegación. |
+| **🔍 Investigación Técnica** | Benchmarking de competencia y reglas de Accesibilidad (A11y). |
 
-🔭 Visión del Proyecto
+## 🛠️ Stack Tecnológico (PERN)
 
-UrbanPulse resuelve la falta de trazabilidad en los reportes de fallas urbanas (baches, alumbrado, fugas). A diferencia de los portales gubernamentales tradicionales, utilizamos un modelo de Red Social donde la ciudadanía vota y prioriza las incidencias, generando un mapa de calor de necesidades reales validado por la comunidad.
+Diseñado con arquitectura de microservicios contenerizados para máxima escalabilidad.
 
-📄 Documentación Detallada:
+<div align="center">
 
-Definición del Proyecto y Alcance
+| Frontend | Backend | Base de Datos | Infraestructura |
+| :---: | :---: | :---: | :---: |
+| **Vite (React)** | **Node.js + Express** | **PostgreSQL 15** | **GitHub Actions** |
 
-Investigación y Fundamentos
+</div>
+</div>
 
-Sitemap y Arquitectura de Navegación
+## 🚀 Instalación y Despliegue
 
-💻 Stack Tecnológico
+¡Olvídate de instalar dependencias locales! Este proyecto es **Docker First**.
 
-Este proyecto utiliza una arquitectura moderna basada en microservicios contenerizados.
+### Prerrequisitos
+* Docker Desktop (Corriendo)
+* Git
 
-Capa
+### ⚡ Quick Start
 
-Tecnología
+1. **Clonar el repositorio**
+   ```bash
+   git clone [https://github.com/CharlyLP04/UrbanPulse.git](https://github.com/CharlyLP04/UrbanPulse.git)
+   cd UrbanPulse
 
-Descripción
+ 2. Configurar VariablesBashcp .env.example .env  # Crea el archivo de entorno
+     ```
+      cp .env.example .env  # Crea el archivo de entorno
+     
+ Levantar Infraestructura
+   `
+     docker compose up --build `
+     
+### Acceso
+* 🎨 **Frontend:** http://localhost:5173
+* ⚙️ **Backend:** http://localhost:3000
 
-Frontend
+## 📂 Estructura del Repositorio
 
-
-
-SPA reactiva, optimizada para accesibilidad (A11y).
-
-Backend
-
-
-
-API RESTful escalable y segura.
-
-Base de Datos
-
-
-
-Persistencia relacional con integridad referencial.
-
-Infraestructura
-
-
-
-Orquestación de contenedores para desarrollo y producción.
-
-🏗 Arquitectura
-
-El sistema se compone de tres contenedores orquestados:
-
-urbanpulse_db: Base de datos PostgreSQL persistente (Volumen dockerizado).
-
-urbanpulse_backend: API Node.js que expone endpoints REST en puerto 3000.
-
-urbanpulse_frontend: Servidor de desarrollo Vite expuesto en puerto 5173.
-
-🚀 Instalación y Ejecución
-
-Prerrequisitos
-
-Docker Desktop (Running)
-
-Git
-
-Pasos para iniciar (Dev Mode)
-
-Clonar el repositorio:
-
-git clone [https://github.com/CharlyLP04/UrbanPulse.git](https://github.com/CharlyLP04/UrbanPulse.git)
-cd UrbanPulse
-
-
-Configurar Variables de Entorno:
-Crea un archivo .env en la raíz (puedes copiar el ejemplo):
-
-cp .env.example .env
-
-
-Levantar Infraestructura:
-Gracias a Docker, no necesitas instalar Node o Postgres localmente. Solo ejecuta:
-
-docker compose up --build
-
-
-Acceso:
-
-Frontend: http://localhost:5173
-
-Backend API: http://localhost:3000
-
-Base de Datos: localhost:5432
-
-📂 Estructura del Proyecto
-
-/urban-pulse
-├── .github/workflows   # Pipelines de CI/CD (GitHub Actions)
-├── docs/               # Documentación técnica (PDFs, Diagramas)
+```text
+/UrbanPulse
+├── .github/workflows   # 🤖 Automatización CI/CD
+├── docs/               # 📘 Documentación y Entregables
 ├── src/
-│   ├── backend/        # API Node.js + Dockerfile
-│   └── frontend/       # React App + Dockerfile
-├── .gitignore          # Exclusiones de Git
-├── docker-compose.yml  # Orquestación de servicios
-└── README.md           # Este archivo
-
-
-🤝 Workflow de Desarrollo
-
-Para mantener la calidad del código, el equipo sigue estrictamente Git Flow:
-
-Rama main protegida: Nadie hace push directo.
-
-Feature Branches: Para cada tarea, crea una rama:
-
-feat/nombre-tarea (Nuevas funciones)
-
-fix/nombre-bug (Correcciones)
-
-docs/nombre-doc (Documentación)
-
-Pull Requests: Todo cambio requiere PR y aprobación de Tech Lead o QA.
-
-Commits Semánticos: Usar prefijos estándar (feat:, fix:, chore:).
-
-👥 Equipo (Fase R1)
-
-Rol
-
-Miembro
-
-Responsabilidad Principal R1
-
-Tech Lead (TL)
-
-Carlos
-
-Arquitectura, Stack y Gestión del Repositorio.
-
-Frontend (FE)
-
-Kevin
-
-UX, Sitemap y Estructura base Accesible.
-
-Backend (BE)
-
-Alexis
-
-Diseño de BD y Configuración de API.
-
-DevOps (DO)
-
-Jarumi
-
-Dockerización y Pipeline CI/CD.
-
-Quality (QA)
-
-Breyan
-
-Plan de Pruebas y Validación Documental.
-
-UrbanPulse - Proyecto Académico con Estándares de Industria.
-
-Enero 2026
+│   ├── backend/        # 🧠 API y Lógica de Negocio
+│   └── frontend/       # 👁️ Interfaz de Usuario
+├── docker-compose.yml  # 🐳 Orquestación
+└── README.md
+```
+👥 Equipo de Desarrollo (Squad 3)
+👑 Tech Lead,Carlos,Arquitectura y Gestión de Repositorio
+🎨 Frontend,Kevin,"UX, Sitemap y Accesibilidad"
+⚙️ Backend,Alexis,Modelo de Datos y API REST
+🐳 DevOps,Jarumi,Dockerización y CI/CD
+🔍 QA,Breyan,Pruebas y Validación Documental
+<div align="center"> <sub>Desarrollado con ❤️ por el Equipo 3 para Ingeniería de Software - Enero 2026</sub> </div>
