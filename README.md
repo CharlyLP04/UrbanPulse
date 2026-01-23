@@ -48,16 +48,19 @@ Diseñado con arquitectura de microservicios contenerizados para máxima escalab
 
 1. **Clonar el repositorio**
    ```bash
-   git clone [https://github.com/CharlyLP04/UrbanPulse.git](https://github.com/CharlyLP04/UrbanPulse.git)
+   git clone https://github.com/CharlyLP04/UrbanPulse.git
    cd UrbanPulse
+   ```
 
- 2. Configurar VariablesBashcp .env.example .env  # Crea el archivo de entorno
-     ```
-      cp .env.example .env  # Crea el archivo de entorno
-     
- Levantar Infraestructura
-   `
-     docker compose up --build `
+2. **Configurar Variables**
+   ```bash
+   cp .env.example .env  # Crea el archivo de entorno
+   ```
+
+3. **Levantar Infraestructura**
+   ```bash
+   docker compose up --build
+   ```
      
 ### Acceso
 * 🎨 **Frontend:** http://localhost:5173
