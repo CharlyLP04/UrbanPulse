@@ -82,3 +82,4 @@ Diseñado con arquitectura de microservicios contenerizados para máxima escalab
 🐳 DevOps,Jarumi,Dockerización y CI/CD
 🔍 QA,Breyan,Pruebas y Validación Documental
 <div align="center"> <sub>Desarrollado con ❤️ por el Equipo 3 para Ingeniería de Software - Enero 2026</sub> </div>
+
