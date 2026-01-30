@@ -8,17 +8,17 @@
 
 Aplicamos la filosofía de Steve Krug para minimizar la carga cognitiva del usuario en UrbanPulse:
 
-### 🚀 Navegación Evidente
+###  Navegación Evidente
 *   **Problema:** Los usuarios deben reportar incidencias rápidamente, a menudo en movimiento.
 *   **Solución:** Menú de navegación inferior fijo en móviles con iconos universales (Home, Mapa, Reportar, Perfil).
 *   **Krug:** "Si no puedo encontrarlo, no existe". La acción principal (+) está resaltada y al centro.
 
-### 👓 Jerarquía Visual Clara
+### Jerarquía Visual Clara
 *   **Problema:** Saturación de información en el feed de reportes.
 *   **Solución:** Uso de **Bebas Neue** para títulos importantes y **IBM Plex Sans** para lectura. Las tarjetas de reporte usan espaciado y contraste para separar visualmente cada incidente.
 *   **Krug:** Los usuarios escanean, no leen. Los títulos grandes permiten el escaneo rápido.
 
-### 🚫 Sin Preguntas Innecesarias
+### Sin Preguntas Innecesarias
 *   **Problema:** Formularios de registro largos disuaden a los usuarios.
 *   **Solución:** Registro simplificado (Email/Password o Social Login). El perfil se completa *después*, solo si es necesario.
 
@@ -47,16 +47,16 @@ Evaluación del prototipo actual frente a las 10 Heurísticas de Usabilidad:
 
 Más allá de los colores (ya documentados en el Design System), abordamos la accesibilidad estructural:
 
-### 👁️ Percepción
+###  Percepción
 *   **Contraste:** Todo el texto principal cumple ratio AAA o AA estricto sobre sus fondos.
 *   **Texto Alternativo:** Todas las imágenes y reportes incluyen atributos `alt` descriptivos para lectores de pantalla.
 *   **No solo color:** Los estados de error usan color rojo Y un icono de advertencia (para daltónicos).
 
-### 👆 Operabilidad
+###  Operabilidad
 *   **Zonas Táctiles:** Todos los botones interactivos tienen un área mínima de **48x48px** (dedo pulgar).
 *   **Navegación por Teclado:** Orden lógico de tabulación (`tabindex`) en formularios web para usuarios sin ratón.
 
-### 🧠 Comprensión
+###  Comprensión
 *   **Lenguaje Simple:** Nivel de lectura grado 8 (evitar tecnicismos municipales).
 *   **Feedback Constante:** El usuario siempre sabe si su reporte se envió, falló o está cargando.
 
