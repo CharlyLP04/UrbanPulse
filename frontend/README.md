@@ -24,4 +24,6 @@ Interfaz de usuario moderna y responsiva construida con **Next.js 13+ (App Route
 *   Evitar "Prop Drilling" excesivo. Usar Context API o gestores de estado globales solo para datos que realmente son globales (ej. Sesión de usuario). Para lo demás, mantener el estado lo más local posible.
 
 ### 5. Navegación
-*   Usar siempre el componente `<Link>` de Next.js en lugar de etiquetas `<a>` para navegación interna para aprovechar el prefetching y SPA feel.
+
+### 6. Configuración Inicial
+*   Renombrar `.env.example` a `.env` y configurar las variables de entorno necesarias antes de iniciar.

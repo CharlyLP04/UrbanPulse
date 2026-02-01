@@ -24,3 +24,7 @@ El núcleo lógico de UrbanPulse. API RESTful construida con Node.js y Express, 
 ### 4. Seguridad
 *   Validar **siempre** los datos de entrada (usar middlewares tipo `joi` o `express-validator`).
 *   Prohibido devolver contraseñas o datos sensibles en las respuestas JSON.
+
+### 5. Configuración del Entorno
+*   Crear un archivo `.env` basado en las necesidades del proyecto (ver `Dockerfile` o contactar al Tech Lead).
+*   Asegurarse de que `tsconfig.json` esté presente para la compilación de TypeScript.
