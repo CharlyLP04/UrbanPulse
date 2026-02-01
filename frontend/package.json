@@ -22,7 +22,13 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
     "axe-core": "^4.11.1",
     "jest": "^30.2.0"
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   }
 }
