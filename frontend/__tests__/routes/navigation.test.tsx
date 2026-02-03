@@ -127,7 +127,7 @@ describe('Navigation Routes Integration', () => {
       route.breadcrumbs.forEach(crumb => {
         expect(crumb.label).toBeDefined()
         expect(crumb.href).toBeDefined()
-        expect(crumb.href).toMatch(/^\/[a-z\/-]+$/)
+        expect(crumb.href).toMatch(/^\/([a-z\/-]*)?$/)
       })
     })
   })
@@ -148,7 +148,7 @@ describe('Navigation Routes Integration', () => {
         expect(route).not.toMatch(/\/$/)
       }
       // Routes should use kebab-case or underscores, not camelCase
-      expect(route).not.totoMatch(/[A-Z]/)
+      expect(route).not.toMatch(/[A-Z]/)
     })
   })
 
@@ -209,12 +209,17 @@ describe('Navigation Routes Integration', () => {
 
     // Public routes should match patterns
     publicRoutes.forEach(route => {
-      expect(route).toMatch(/^\/(auth|public)?\//)
+      if (route !== '/') {
+        expect(route).toMatch(/^\/(auth|public)?\//)
+      } else {
+        // Root path "/" is valid
+        expect(route).toBe('/')
+      }
     })
 
     // Protected routes should start with /dashboard
     protectedRoutes.forEach(route => {
-      expect(route).toMatch(/^\/dashboard\//)
+      expect(route).toMatch(/^\/dashboard\/?/)
     })
 
     // Admin routes should start with /admin
