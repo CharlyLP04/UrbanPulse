@@ -1,8 +1,8 @@
-import '@testing-library/jest-dom'
-import { toHaveNoViolations } from 'jest-axe'
+require('@testing-library/jest-dom');
+const { toHaveNoViolations } = require('jest-axe');
 
-// Extend Jest's matchers
-expect.extend(toHaveNoViolations)
+expect.extend(toHaveNoViolations);
+
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
