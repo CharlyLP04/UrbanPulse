@@ -2,9 +2,9 @@ name: SGSM Continuous Integration
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build-and-test:
@@ -34,10 +34,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      # 5. Ejecutar ESLint
+      # 5. Ejecutar ESLint (FIX REAL)
       - name: Run ESLint
         working-directory: frontend
-        run: npm run lint
+        run: npx next lint .
 
       # 6. Ejecutar TypeScript check
       - name: Run TypeScript check
