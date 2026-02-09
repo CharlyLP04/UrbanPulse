@@ -11,26 +11,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout
+      # 1. Descargar el código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Node 20
+      # 2. Configurar Node.js 20
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
-      # 3. Verificar estructura
-      - name: Verify Project Structure
+      # 3. Validar estructura del proyecto
+      - name: Verify project structure
         run: |
           test -d backend || (echo "Falta carpeta backend" && exit 1)
           test -d frontend || (echo "Falta carpeta frontend" && exit 1)
 
-      # 4. Instalar dependencias frontend
+      # 4. Instalar dependencias del frontend
       - name: Install frontend dependencies
         working-directory: frontend
-        run: npm install
+        run: npm ci
 
       # 5. Ejecutar ESLint
       - name: Run ESLint
@@ -40,14 +42,14 @@ jobs:
       # 6. Ejecutar TypeScript check
       - name: Run TypeScript check
         working-directory: frontend
-        run: npm run typecheck
+        run: npx tsc --noEmit
 
       # 7. Ejecutar tests
       - name: Run tests
         working-directory: frontend
         run: npm run test:ci
 
-      # 8. Build de la app
+      # 8. Build de la aplicación
       - name: Build application
         working-directory: frontend
         run: npm run build
