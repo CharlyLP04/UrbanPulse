@@ -68,3 +68,11 @@ jest.mock('next/router', () => ({
     },
   }),
 }))
+// Mock crypto.randomUUID for Jest
+if (!global.crypto) {
+  global.crypto = {}
+}
+
+if (!global.crypto.randomUUID) {
+  global.crypto.randomUUID = () => 'test-uuid'
+}
