@@ -16,14 +16,21 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        {/* Skip link para accesibilidad - PRIMERO en el DOM */}
-        <a 
-          href="#main-content" 
-          className="skip-link"
-          tabIndex={0}
-        >
-          Saltar al contenido principal
-        </a>
+        {/* Skip links para accesibilidad - PRIMEROS en el DOM */}
+        <div className="skip-links" aria-label="Enlaces de salto">
+          <a href="#main-navigation" className="skip-link" tabIndex={0}>
+            Saltar a navegación principal
+          </a>
+          <a href="#breadcrumb-navigation" className="skip-link" tabIndex={0}>
+            Saltar a ruta de navegación
+          </a>
+          <a href="#main-content" className="skip-link" tabIndex={0}>
+            Saltar al contenido principal
+          </a>
+          <a href="#site-footer" className="skip-link" tabIndex={0}>
+            Saltar al pie de página
+          </a>
+        </div>
         
         {/* Navegación principal */}
         <header>
@@ -31,17 +38,17 @@ export default function RootLayout({
         </header>
         
         {/* Breadcrumbs - navegación secundaria */}
-        <nav aria-label="Ruta de navegación">
+        <div id="breadcrumb-navigation">
           <Breadcrumb items={[{ label: 'Inicio', href: '/' }]} />
-        </nav>
+        </div>
         
         {/* Contenido principal */}
-        <main id="main-content" role="main">
+        <main id="main-content" role="main" tabIndex={-1}>
           {children}
         </main>
         
         {/* Footer opcional */}
-        <footer>
+        <footer id="site-footer" tabIndex={-1}>
           <p>&copy; 2024 UrbanPulse - Municipalidad</p>
         </footer>
       </body>
