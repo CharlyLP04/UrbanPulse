@@ -11,15 +11,20 @@ services:
       POSTGRES_DB: reportes_db
     ports:
       - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
-  # Backend: Aquí irá nuestra lógica de negocio más adelante
+  # Backend: Aquí irá nuestra lógica de negocio
   backend:
     build: ./backend
     restart: on-failure
     depends_on:
       - db
 
- # Frontend: La interfaz que usará el ciudadano
+  # Frontend: La interfaz que usará el ciudadano
   frontend:
     build: ./frontend
     restart: on-failure
+
+volumes:
+  db_data:
