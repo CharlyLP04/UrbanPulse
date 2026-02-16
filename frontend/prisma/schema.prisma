@@ -1,0 +1,112 @@
+// Prisma Schema — UrbanPulse
+// Esquema PostgreSQL: users, reports, categories, comments, votes
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Enums ──────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+
+  @@map("role")
+}
+
+enum ReportStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+
+  @@map("report_status")
+}
+
+enum VoteType {
+  UP
+  DOWN
+
+  @@map("vote_type")
+}
+
+// ── Models ─────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  reports  Report[]
+  comments Comment[]
+  votes    Vote[]
+
+  @@map("users")
+}
+
+model Report {
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  location    String?
+  status      ReportStatus @default(OPEN)
+  userId      String       @map("user_id")
+  categoryId  String?      @map("category_id")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  comments Comment[]
+  votes    Vote[]
+
+  @@map("reports")
+}
+
+model Category {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+  color       String  @default("#6B7280")
+
+  reports Report[]
+
+  @@map("categories")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  reportId  String   @map("report_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  reportId  String   @map("report_id")
+  userId    String   @map("user_id")
+  voteType  VoteType @map("vote_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, userId])
+  @@map("votes")
+}
