@@ -1,0 +1,432 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+.page {
+  --azul-institucional: #0f4c75;
+  --azul-medio: #3282b8;
+  --verde-estable: #1b9c85;
+  --rojo-institucional: #e74646;
+  --gris-azulado: #e8eef1;
+  --negro-carbon: #1a1a1d;
+  --blanco: #ffffff;
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--gris-azulado);
+  color: var(--negro-carbon);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.navbar {
+  background: var(--azul-institucional);
+  padding: 1rem 0;
+  box-shadow: 0 4px 12px rgba(15, 76, 117, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--blanco);
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: 'Bebas Neue', cursive;
+  letter-spacing: 1px;
+}
+
+.navLinks {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navLinks a {
+  color: var(--blanco);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  position: relative;
+  border-radius: 6px;
+}
+
+.navLinks a:hover {
+  color: var(--gris-azulado);
+}
+
+.navLinks a:focus-visible {
+  outline: 3px solid var(--blanco);
+  outline-offset: 2px;
+}
+
+.navLinks a::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--azul-medio);
+  transition: width 0.3s ease;
+}
+
+.navLinks a:hover::after {
+  width: 100%;
+}
+
+.btnPrimary {
+  background: var(--verde-estable);
+  color: var(--blanco);
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btnPrimary:hover {
+  background: #158f75;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(27, 156, 133, 0.3);
+}
+
+.hero {
+  background: linear-gradient(135deg, var(--azul-institucional) 0%, var(--azul-medio) 100%);
+  color: var(--blanco);
+  padding: 5rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="none"/><path d="M0 0L50 50M50 50L100 0M50 50L100 100M50 50L0 100" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>');
+  opacity: 0.3;
+}
+
+.heroContent {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.hero h1 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  letter-spacing: 2px;
+  animation: fadeInUp 0.8s ease;
+}
+
+.heroTagline {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+  animation: fadeInUp 0.8s ease 0.2s backwards;
+}
+
+.heroDescription {
+  font-size: 1.1rem;
+  margin-bottom: 2.5rem;
+  opacity: 0.9;
+  animation: fadeInUp 0.8s ease 0.4s backwards;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  animation: fadeInUp 0.8s ease 0.6s backwards;
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--blanco);
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--blanco);
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.btnSecondary:hover {
+  background: var(--blanco);
+  color: var(--azul-institucional);
+}
+
+.stats {
+  background: var(--gris-azulado);
+  padding: 3rem 2rem;
+}
+
+.statsContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.statCard {
+  background: var(--blanco);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(26, 26, 29, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-top: 4px solid var(--azul-medio);
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(26, 26, 29, 0.12);
+}
+
+.statNumber {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 3.5rem;
+  color: var(--azul-institucional);
+  margin-bottom: 0.5rem;
+}
+
+.statLabel {
+  color: var(--negro-carbon);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.features {
+  background: var(--blanco);
+  padding: 5rem 2rem;
+}
+
+.featuresContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sectionTitle {
+  text-align: center;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 3rem;
+  color: var(--azul-institucional);
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+}
+
+.sectionSubtitle {
+  text-align: center;
+  color: var(--negro-carbon);
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+  opacity: 0.8;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.featureCard {
+  background: var(--gris-azulado);
+  padding: 2rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border-left: 5px solid var(--verde-estable);
+}
+
+.featureCard:hover {
+  transform: translateX(10px);
+  box-shadow: -5px 5px 20px rgba(27, 156, 133, 0.2);
+}
+
+.featureIcon {
+  width: 60px;
+  height: 60px;
+  background: var(--verde-estable);
+  color: var(--blanco);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.featureTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--azul-institucional);
+  margin-bottom: 0.5rem;
+}
+
+.featureDescription {
+  color: var(--negro-carbon);
+  line-height: 1.6;
+}
+
+.ctaSection {
+  background: var(--verde-estable);
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--blanco);
+}
+
+.ctaSection h2 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+}
+
+.ctaSection p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+}
+
+.btnWhite {
+  background: var(--blanco);
+  color: var(--verde-estable);
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btnWhite:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.footer {
+  background: var(--azul-institucional);
+  color: var(--blanco);
+  padding: 3rem 2rem 1.5rem;
+}
+
+.footerContainer {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.footerSection h3 {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+}
+
+.footerSection ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footerSection ul li {
+  margin-bottom: 0.5rem;
+}
+
+.footerSection a {
+  color: var(--gris-azulado);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footerSection a:hover {
+  color: var(--verde-estable);
+}
+
+.footerSection a:focus-visible {
+  outline: 3px solid var(--blanco);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.footerBottom {
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0.8;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badgeSuccess {
+  background: var(--verde-estable);
+  color: var(--blanco);
+}
+
+.badgeInfo {
+  background: var(--azul-medio);
+  color: var(--blanco);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    display: none;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+  }
+}
