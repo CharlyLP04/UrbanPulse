@@ -1,0 +1,19 @@
+PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\Users\col28\Desktop\UrbanPulse\frontend\scripts\get-first-user.ts:6:36
+
+  3 import { prisma } from '../lib/db'
+  4 
+  5 async function main() {
+→ 6     const user = await prisma.user.findFirst(
+
+    at zr.handleRequestError (C:\Users\col28\Desktop\UrbanPulse\frontend\node_modules\.prisma\client\runtime\client.js:69:8172)
+    at zr.handleAndLogRequestError (C:\Users\col28\Desktop\UrbanPulse\frontend\node_modules\.prisma\client\runtime\client.js:69:7467)
+    at zr.request (C:\Users\col28\Desktop\UrbanPulse\frontend\node_modules\.prisma\client\runtime\client.js:69:7174)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async a (C:\Users\col28\Desktop\UrbanPulse\frontend\node_modules\.prisma\client\runtime\client.js:79:5816)
+    at async main (C:\Users\col28\Desktop\UrbanPulse\frontend\scripts\get-first-user.ts:6:18) {
+  code: 'ECONNREFUSED',
+  meta: { modelName: 'User' },
+  clientVersion: '7.4.0'
+}
