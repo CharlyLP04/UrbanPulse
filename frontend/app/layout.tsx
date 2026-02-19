@@ -1,3 +1,4 @@
+import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
 // Metadata para SEO
@@ -39,7 +40,7 @@ export default function RootLayout({
         
         {/* Breadcrumbs - navegación secundaria */}
         <div id="breadcrumb-navigation">
-          <Breadcrumb items={[{ label: 'Inicio', href: '/' }]} />
+          <Breadcrumb />
         </div>
         
         {/* Contenido principal */}

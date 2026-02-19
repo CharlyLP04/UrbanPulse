@@ -51,7 +51,7 @@ export default function LandingPage() {
         <div className={styles.heroContent}>
           <h1>Transformando Quejas en Acción</h1>
           <p className={styles.heroTagline}>
-            "De la queja individual a la presión social colectiva"
+            &quot;De la queja individual a la presión social colectiva&quot;
           </p>
           <p className={styles.heroDescription}>
             UrbanPulse es la plataforma donde los ciudadanos reportan, votan y priorizan las fallas
