@@ -1,17 +1,20 @@
+import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
+
 // Metadata para SEO
 export const metadata = {
   title: 'UrbanPulse - Sistema Municipal de Reportes',
   description: 'Plataforma para reportar y seguir incidencias de servicios públicos',
 }
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
+    <html lang="es" className="light">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
@@ -39,7 +42,7 @@ export default function RootLayout({
         
         {/* Breadcrumbs - navegación secundaria */}
         <div id="breadcrumb-navigation">
-          <Breadcrumb items={[{ label: 'Inicio', href: '/' }]} />
+          <Breadcrumb />
         </div>
         
         {/* Contenido principal */}
