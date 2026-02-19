@@ -34,22 +34,22 @@ export default function RootLayout({
             Saltar al pie de página
           </a>
         </div>
-
+        
         {/* Navegación principal */}
         <header>
           <Navbar />
         </header>
-
+        
         {/* Breadcrumbs - navegación secundaria */}
         <div id="breadcrumb-navigation">
-          <Breadcrumb items={[{ label: 'Inicio', href: '/' }]} />
+          <Breadcrumb />
         </div>
-
+        
         {/* Contenido principal */}
         <main id="main-content" role="main" tabIndex={-1}>
           {children}
         </main>
-
+        
         {/* Footer opcional */}
         <footer id="site-footer" tabIndex={-1}>
           <p>&copy; 2024 UrbanPulse - Municipalidad</p>
