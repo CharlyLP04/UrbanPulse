@@ -1,16 +1,60 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useArrowMenuNavigation } from '@/components/wireframes/shared/useArrowMenuNavigation'
-import { initialReports } from './data'
+import { getReports, Report } from '@/lib/api'
 import ExploreFilters from './ExploreFilters'
 import ExploreNavbar from './ExploreNavbar'
 import ExploreReportsSection from './ExploreReportsSection'
-import { Report } from './types'
+
+interface ExploreReport {
+  id: string
+  emoji: string
+  title: string
+  description: string
+  location: string
+  author: string
+  time: string
+  status: 'urgente' | 'proceso' | 'resuelto' | 'pendiente'
+  votes: number
+}
+
+function mapApiReportToExplore(report: Report): ExploreReport {
+  const statusMap: Record<string, ExploreReport['status']> = {
+    'OPEN': 'urgente',
+    'IN_PROGRESS': 'proceso',
+    'RESOLVED': 'resuelto',
+    'CLOSED': 'pendiente'
+  }
+  
+  return {
+    id: report.id,
+    emoji: '📍',
+    title: report.title,
+    description: report.description,
+    location: report.location || 'Ubicación no especificada',
+    author: report.user?.name || 'Usuario anónimo',
+    time: new Date(report.createdAt).toLocaleDateString('es-ES'),
+    status: statusMap[report.status] || 'pendiente',
+    votes: report._count?.votes || 0
+  }
+}
 
 export default function ExplorePage() {
-  const [reports, setReports] = useState<Report[]>(initialReports)
+  const [reports, setReports] = useState<ExploreReport[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const { itemRefs, onKeyDown } = useArrowMenuNavigation<HTMLAnchorElement>()
+
+  useEffect(() => {
+    getReports()
+      .then((data) => {
+        const mapped = data.map(mapApiReportToExplore)
+        setReports(mapped)
+      })
+      .catch(() => setError('Error al cargar los reportes'))
+      .finally(() => setLoading(false))
+  }, [])
 
   const voteReport = (reportId: string) => {
     setReports((previous) =>
@@ -19,6 +63,37 @@ export default function ExplorePage() {
           ? { ...report, votes: report.votes + 1 }
           : report
       )
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="explore-page">
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Cargando reportes...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="explore-page">
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </div>
     )
   }
 
