@@ -2,12 +2,12 @@
 // Esquema PostgreSQL: users, reports, categories, comments, votes
 
 generator client {
-  provider = "prisma-client"
-  output   = "./generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ── Enums ──────────────────────────────────────────────
