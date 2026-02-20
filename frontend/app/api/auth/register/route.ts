@@ -3,6 +3,8 @@ import { prisma } from '../../../../lib/db'
 import { hashPassword } from '../../../../lib/password'
 import { signAccessToken, signRefreshToken, TokenPayload } from '../../../../lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
     try {
         // ── 1. Parsear y validar body ────────────────────────
