@@ -11,15 +11,31 @@ services:
       POSTGRES_DB: reportes_db
     ports:
       - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
-  # Backend: Aquí irá nuestra lógica de negocio más adelante
+  # Backend: Aquí irá nuestra lógica de negocio
   backend:
     build: ./backend
     restart: on-failure
     depends_on:
       - db
+    environment:
+      - DATABASE_URL=postgresql://admin_municipio:password_seguro123@db:5432/reportes_db
+    ports:
+      - "4000:4000"
 
- # Frontend: La interfaz que usará el ciudadano
+  # Frontend: La interfaz que usará el ciudadano
   frontend:
     build: ./frontend
     restart: on-failure
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://backend:4000
+      - DATABASE_URL=postgresql://admin_municipio:password_seguro123@db:5432/reportes_db
+
+volumes:
+  db_data:
