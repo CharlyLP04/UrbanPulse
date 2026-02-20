@@ -3,3 +3,8 @@ node_modules/
 *.log
 dist/
 .DS_Store
+.next/
+tsc_errors.txt
+*.txt
+!.gitkeep
+!.eslintrc.json
