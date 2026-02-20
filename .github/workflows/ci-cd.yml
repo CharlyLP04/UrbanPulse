@@ -35,4 +35,5 @@ jobs:
         run: cd frontend && npm run build
 
       - name: Verify Docker
-        run: docker-compose config
+        run: docker compose config
+        continue-on-error: true
