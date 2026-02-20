@@ -1,4 +1,5 @@
-export default function LoginPage() {
-  return <div>Login</div>
-}
+import LoginPage from '@/components/wireframes/login/LoginPage'
 
+export default function AuthLoginPage() {
+  return <LoginPage />
+}
