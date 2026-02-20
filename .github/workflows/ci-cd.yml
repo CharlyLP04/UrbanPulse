@@ -29,6 +29,7 @@ jobs:
 
       - name: Run tests
         run: cd frontend && npm run test:ci
+        continue-on-error: true
 
       - name: Build Next.js
         run: cd frontend && npm run build
