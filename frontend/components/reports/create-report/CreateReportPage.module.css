@@ -104,6 +104,17 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(26, 26, 29, 0.08);
   overflow: hidden;
+
+  opacity: 0;
+  transform: translateY(20px);
+  animation: formFadeIn 0.5s ease forwards;
+}
+
+@keyframes formFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .formContainer {
@@ -594,5 +605,14 @@
 
   .imagePreviewContainer {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formCard,
+  .successContent {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
 }
