@@ -245,3 +245,31 @@ body {
     --ring: 0 0% 100%;
   }
 }
+
+
+/* =========================
+   ReportCard Animations
+========================= */
+
+.report-card {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: cardFadeIn 0.5s ease-out forwards;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.report-card:hover {
+  transform: translateY(0) scale(1.02);
+}
+
+/* Keyframe solo usando opacity y transform */
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
