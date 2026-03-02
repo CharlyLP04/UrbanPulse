@@ -1,12 +1,12 @@
 <div align="center">
 
-# 👁️ Frontend (Next.js App Router)
+#  Frontend (Next.js App Router)
 
 </div>
 
 Interfaz de usuario moderna y responsiva construida con **Next.js 13+ (App Router)**. Prioriza la experiencia de usuario (UX) y la accesibilidad (A11y).
 
-## 🎨 Reglas de Desarrollo Frontend
+##  Reglas de Desarrollo Frontend
 
 ### 1. Estructura de "App Router"
 *   **Rutas**: La estructura de carpetas define las rutas URL (`/app/dashboard` -> `urbanpulse.com/dashboard`).
@@ -27,3 +27,36 @@ Interfaz de usuario moderna y responsiva construida con **Next.js 13+ (App Route
 
 ### 6. Configuración Inicial
 *   Renombrar `.env.example` a `.env` y configurar las variables de entorno necesarias antes de iniciar.
+
+#  Contrato de Estados – Backend
+
+El backend implementa un contrato de estados estandarizado para que el frontend pueda manejar animaciones accesibles según el resultado de cada petición HTTP.
+
+##  Estructura de Respuesta
+
+Todas las respuestas del backend siguen el formato:
+
+###  Éxito
+```json
+{
+  "success": true,
+  "data": {}
+}
+❌ Error
+{
+  "success": false,
+  "message": "Descripción del error"
+}
+Estados que interpreta el Frontend
+
+El frontend puede reaccionar con animaciones o mensajes según:
+
+Cargando → Mientras espera la respuesta del servidor.
+
+Éxito → Cuando success es true.
+
+Error → Cuando success es false.
+
+La documentación detallada de los endpoints se encuentra en:
+
+docs/animaciones-accesibles/backend/contrato-estados-servicios.md
