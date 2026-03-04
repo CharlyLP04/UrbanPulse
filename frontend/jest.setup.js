@@ -16,3 +16,42 @@ if (!global.crypto.randomUUID) {
 }
 
 expect.extend(toHaveNoViolations)
+
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+})
+
+const originalMatchMedia = window.matchMedia
+
+export function mockMatchMedia(mockMatches) {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation(query => ({
+      matches: mockMatches,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  })
+}
+
+export function resetMatchMedia() {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: originalMatchMedia,
+  })
+}
