@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/db'
 
@@ -45,16 +44,16 @@ export async function GET(
 
         if (!report) {
             return NextResponse.json(
-                { error: 'Reporte no encontrado' },
+                { success: false, message: 'Reporte no encontrado' },
                 { status: 404 }
             )
         }
 
         return NextResponse.json(report)
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Error fetching report:', error)
         return NextResponse.json(
-            { error: 'Error al obtener el reporte' },
+            { success: false, message: 'Error al obtener el reporte' },
             { status: 500 }
         )
     }
