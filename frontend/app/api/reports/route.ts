@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server'
 import { prisma } from '../../../lib/db'
 
@@ -26,11 +25,20 @@ export async function GET() {
       },
     })
 
-    return NextResponse.json(reports)
+    return NextResponse.json(
+      {
+        success: true,
+        data: reports,
+      },
+      { status: 200 }
+    )
   } catch (error) {
     console.error('Error fetching reports:', error)
     return NextResponse.json(
-      { error: 'Error al obtener los reportes' },
+      {
+        success: false,
+        message: 'Error al obtener los reportes',
+      },
       { status: 500 }
     )
   }
@@ -43,19 +51,24 @@ export async function POST(request: Request) {
 
     if (!title || !description || !userId) {
       return NextResponse.json(
-        { error: 'Faltan campos obligatorios (title, description, userId)' },
+        {
+          success: false,
+          message: 'Faltan campos obligatorios (title, description, userId)',
+        },
         { status: 400 }
       )
     }
 
-    // Verificar si el usuario existe antes de crear el reporte
     const user = await prisma.user.findUnique({
       where: { id: userId },
     })
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Usuario no encontrado' },
+        {
+          success: false,
+          message: 'Usuario no encontrado',
+        },
         { status: 404 }
       )
     }
@@ -70,11 +83,20 @@ export async function POST(request: Request) {
       },
     })
 
-    return NextResponse.json(report, { status: 201 })
+    return NextResponse.json(
+      {
+        success: true,
+        data: report,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     console.error('Error creating report:', error)
     return NextResponse.json(
-      { error: 'Error al crear el reporte' },
+      {
+        success: false,
+        message: 'Error al crear el reporte',
+      },
       { status: 500 }
     )
   }
