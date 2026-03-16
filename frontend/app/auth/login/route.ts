@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '../../../../lib/db'
-import { hashPassword } from '../../../../lib/password'
-import { signAccessToken, signRefreshToken, TokenPayload } from '../../../../lib/auth'
+import { prisma } from '@/lib/db'
+import { comparePassword } from '@/lib/password'
+import { signAccessToken, signRefreshToken, TokenPayload } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,62 +9,43 @@ export async function POST(request: NextRequest) {
     try {
         // ── 1. Parsear y validar body ────────────────────────
         const body = await request.json()
-        const { email, name, password } = body
+        const { email, password } = body
 
-        if (!email || !name || !password) {
+        // Validación básica
+        if (!email || !password) {
             return NextResponse.json(
-                { success: false, message: 'Los campos email, name y password son requeridos.' },
+                { success: false, message: 'Los campos email y password son requeridos.' },
                 { status: 400 }
             )
         }
 
-        // Validación básica de email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!emailRegex.test(email)) {
-            return NextResponse.json(
-                { success: false, message: 'El formato del email es inválido.' },
-                { status: 400 }
-            )
-        }
-
-        // Validación de longitud de contraseña
-        if (password.length < 6) {
-            return NextResponse.json(
-                { success: false, message: 'La contraseña debe tener al menos 6 caracteres.' },
-                { status: 400 }
-            )
-        }
-
-        // ── 2. Verificar que el email no exista ──────────────
-        const existingUser = await prisma.user.findUnique({
+        // ── 2. Buscar usuario ────────────────────────────────
+        const user = await prisma.user.findUnique({
             where: { email },
-        })
-
-        if (existingUser) {
-            return NextResponse.json(
-                { success: false, message: 'El email ya está registrado.' },
-                { status: 409 }
-            )
-        }
-
-        // ── 3. Hashear contraseña y crear usuario ────────────
-        const hashedPassword = await hashPassword(password)
-
-        const user = await prisma.user.create({
-            data: {
-                email,
-                name,
-                password: hashedPassword,
-                role: 'USER',
-            },
             select: {
                 id: true,
                 email: true,
                 name: true,
                 role: true,
-                createdAt: true,
+                password: true,
             },
         })
+
+        if (!user) {
+            return NextResponse.json(
+                { success: false, message: 'Credenciales inválidas.' },
+                { status: 401 }
+            )
+        }
+
+        // ── 3. Comparar contraseñas ──────────────────────────
+        const isValidPassword = await comparePassword(password, user.password)
+        if (!isValidPassword) {
+            return NextResponse.json(
+                { success: false, message: 'Credenciales inválidas.' },
+                { status: 401 }
+            )
+        }
 
         // ── 4. Generar tokens JWT ────────────────────────────
         const normalizedRole = user.role.toLowerCase()
@@ -89,7 +70,7 @@ export async function POST(request: NextRequest) {
                     role: normalizedRole,
                 },
             },
-            { status: 201 }
+            { status: 200 }
         )
 
         // Cookie de acceso (15 minutos)
@@ -112,11 +93,10 @@ export async function POST(request: NextRequest) {
 
         return response
     } catch (error) {
-        console.error('Error en registro:', error)
+        console.error('Error en login:', error)
         return NextResponse.json(
             { success: false, message: 'Error interno del servidor.' },
             { status: 500 }
         )
     }
 }
-
