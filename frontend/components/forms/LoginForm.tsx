@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+
 interface LoginFormProps {
   email?: string
   password?: string
@@ -21,25 +23,20 @@ export function LoginForm({
   onPasswordChange,
   onSubmit
 }: LoginFormProps) {
-
   const emailHasError = Boolean(emailError)
   const passwordHasError = Boolean(passwordError)
   const hasFieldErrors = emailHasError || passwordHasError
 
   return (
     <div className="login-form-container">
-
       <div className="form-header">
         <h2>Iniciar sesión</h2>
         <p>Accede a tu cuenta para gestionar reportes ciudadanos</p>
       </div>
 
       <form className="login-form" onSubmit={onSubmit} noValidate>
-
-        {/* EMAIL */}
         <div className="form-group">
           <label htmlFor="email">Email</label>
-
           <input
             id="email"
             type="email"
@@ -52,23 +49,15 @@ export function LoginForm({
               emailHasError ? 'email-error' : showError ? 'login-error' : undefined
             }
           />
-
           {emailHasError && (
-            <div
-              id="email-error"
-              className="field-error"
-              role="alert"
-              aria-live="assertive"
-            >
+            <div id="email-error" className="field-error" role="alert" aria-live="assertive">
               {emailError}
             </div>
           )}
         </div>
 
-        {/* PASSWORD */}
         <div className="form-group">
           <label htmlFor="password">Password</label>
-
           <input
             id="password"
             type="password"
@@ -81,20 +70,13 @@ export function LoginForm({
               passwordHasError ? 'password-error' : showError ? 'login-error' : undefined
             }
           />
-
           {passwordHasError && (
-            <div
-              id="password-error"
-              className="field-error"
-              role="alert"
-              aria-live="assertive"
-            >
+            <div id="password-error" className="field-error" role="alert" aria-live="assertive">
               {passwordError}
             </div>
           )}
         </div>
 
-        {/* OPCIONES */}
         <div className="form-options">
           <label className="remember-me">
             <input type="checkbox" />
@@ -106,10 +88,31 @@ export function LoginForm({
           </a>
         </div>
 
-        {/* ERROR GENERAL */}
         {showError && !hasFieldErrors && (
           <div
             id="login-error"
             className="error-message show"
             role="alert"
             aria-live="assertive"
+          >
+            Credenciales inválidas. Verifique su correo y contraseña.
+          </div>
+        )}
+
+        <button type="submit" className="btn-login">
+          Iniciar sesión
+        </button>
+      </form>
+
+      <div className="divider">o</div>
+
+      <button className="btn-social">
+        Continuar con Google
+      </button>
+
+      <div className="signup-prompt">
+        ¿No tienes cuenta? <a href="/auth/register">Regístrate</a>
+      </div>
+    </div>
+  )
+}
