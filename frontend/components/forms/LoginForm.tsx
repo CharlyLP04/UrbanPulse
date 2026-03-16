@@ -4,6 +4,8 @@ interface LoginFormProps {
   email?: string
   password?: string
   showError?: boolean
+  emailError?: string
+  passwordError?: string
   onEmailChange?: (value: string) => void
   onPasswordChange?: (value: string) => void
   onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void
@@ -13,12 +15,20 @@ export function LoginForm({
   email,
   password,
   showError,
+  emailError,
+  passwordError,
   onEmailChange,
   onPasswordChange,
   onSubmit
 }: LoginFormProps) {
+
+  const emailHasError = Boolean(emailError)
+  const passwordHasError = Boolean(passwordError)
+  const hasFieldErrors = emailHasError || passwordHasError
+
   return (
     <div className="login-form-container">
+
       <div className="form-header">
         <h2>Iniciar sesión</h2>
         <p>Accede a tu cuenta para gestionar reportes ciudadanos</p>
@@ -26,8 +36,10 @@ export function LoginForm({
 
       <form className="login-form" onSubmit={onSubmit} noValidate>
 
+        {/* EMAIL */}
         <div className="form-group">
           <label htmlFor="email">Email</label>
+
           <input
             id="email"
             type="email"
@@ -35,13 +47,28 @@ export function LoginForm({
             autoComplete="email"
             value={email ?? ''}
             onChange={(e) => onEmailChange?.(e.target.value)}
-            aria-invalid={showError}
-            aria-describedby={showError ? "login-error" : undefined}
+            aria-invalid={emailHasError || showError}
+            aria-describedby={
+              emailHasError ? 'email-error' : showError ? 'login-error' : undefined
+            }
           />
+
+          {emailHasError && (
+            <div
+              id="email-error"
+              className="field-error"
+              role="alert"
+              aria-live="assertive"
+            >
+              {emailError}
+            </div>
+          )}
         </div>
 
+        {/* PASSWORD */}
         <div className="form-group">
           <label htmlFor="password">Password</label>
+
           <input
             id="password"
             type="password"
@@ -49,48 +76,40 @@ export function LoginForm({
             autoComplete="current-password"
             value={password ?? ''}
             onChange={(e) => onPasswordChange?.(e.target.value)}
-            aria-invalid={showError}
-            aria-describedby={showError ? "login-error" : undefined}
+            aria-invalid={passwordHasError || showError}
+            aria-describedby={
+              passwordHasError ? 'password-error' : showError ? 'login-error' : undefined
+            }
           />
+
+          {passwordHasError && (
+            <div
+              id="password-error"
+              className="field-error"
+              role="alert"
+              aria-live="assertive"
+            >
+              {passwordError}
+            </div>
+          )}
         </div>
 
+        {/* OPCIONES */}
         <div className="form-options">
           <label className="remember-me">
             <input type="checkbox" />
             Recordarme
           </label>
 
-          <a href="#" className="forgot-password">
+          <a href="/auth/forgot-password" className="forgot-password">
             ¿Olvidaste tu contraseña?
           </a>
         </div>
 
-        {showError && (
+        {/* ERROR GENERAL */}
+        {showError && !hasFieldErrors && (
           <div
             id="login-error"
             className="error-message show"
             role="alert"
             aria-live="assertive"
-          >
-            Credenciales inválidas. Verifique su correo y contraseña.
-          </div>
-        )}
-
-        <button type="submit" className="btn-login">
-          Iniciar sesión
-        </button>
-
-      </form>
-
-      <div className="divider">o</div>
-
-      <button className="btn-social">
-        Continuar con Google
-      </button>
-
-      <div className="signup-prompt">
-        ¿No tienes cuenta? <a href="/auth/register">Regístrate</a>
-      </div>
-    </div>
-  )
-}

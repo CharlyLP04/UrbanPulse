@@ -1,17 +1,59 @@
 'use client'
 
 import Link from 'next/link'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 import LoginBranding from './LoginBranding'
-import LoginForm from './LoginForm'
+import { LoginForm } from '../../forms/LoginForm'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showError, setShowError] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const emailRef = useRef<HTMLInputElement | null>(null)
+  const passwordRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    emailRef.current = document.querySelector<HTMLInputElement>('#email')
+  }, [])
+
+  const validateFields = () => {
+    let hasErrors = false
+
+    if (!email.trim()) {
+      setEmailError('El correo es obligatorio.')
+      hasErrors = true
+    } else {
+      setEmailError('')
+    }
+
+    if (!password.trim()) {
+      setPasswordError('La contraseña es obligatoria.')
+      hasErrors = true
+    } else {
+      setPasswordError('')
+    }
+
+    return !hasErrors
+  }
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setShowError(false)
+
+    const isValid = validateFields()
+
+    if (!isValid) {
+      if (!email.trim()) {
+        emailRef.current?.focus()
+        return
+      }
+      if (!password.trim()) {
+        passwordRef.current?.focus()
+        return
+      }
+    }
 
     if (email === 'demo@urbanpulse.com' && password === 'demo123') {
       setShowError(false)
@@ -34,6 +76,8 @@ export default function LoginPage() {
           email={email}
           password={password}
           showError={showError}
+          emailError={emailError}
+          passwordError={passwordError}
           onEmailChange={setEmail}
           onPasswordChange={setPassword}
           onSubmit={onSubmit}
@@ -355,6 +399,11 @@ export default function LoginPage() {
           animation: shake 0.5s;
         }
 
+        .field-error {
+          color: var(--rojo-institucional);
+          font-size: 0.85rem;
+        }
+
         @keyframes shake {
           0%,
           100% {
@@ -416,3 +465,4 @@ export default function LoginPage() {
     </div>
   )
 }
+
