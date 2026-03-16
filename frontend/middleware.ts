@@ -36,11 +36,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Verificar token JWT
+  // Obtener token de la cookie
   const token = request.cookies.get('auth-token')?.value
 
+  // Bloquear si no hay sesión
   if (!token) {
-    // Redirigir a login si no hay token
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
 
@@ -52,7 +52,6 @@ export async function middleware(request: NextRequest) {
     // Verificar rutas de administrador
     if (adminRoutes.some(route => pathname.startsWith(route))) {
       if (userRole !== 'admin') {
-        // Redirigir a dashboard de usuario si no es admin
         return NextResponse.redirect(new URL('/dashboard/home', request.url))
       }
     }
@@ -62,26 +61,16 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
-    // Si la ruta no está definida, permitir acceso
     return NextResponse.next()
 
   } catch (error) {
-    // Token inválido, redirigir a login
+    // Token inválido → login
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
 }
 
-// Configurar qué rutas debe manejar el middleware
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
   ],
 }

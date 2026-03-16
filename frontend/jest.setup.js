@@ -55,3 +55,30 @@ export function resetMatchMedia() {
     value: originalMatchMedia,
   })
 }
+
+//
+// FIXES PARA NEXT + JEST
+//
+
+// Fix para NextResponse.json()
+if (!global.Response.json) {
+  global.Response.json = function (data, init = {}) {
+    return new Response(JSON.stringify(data), {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init.headers || {}),
+      },
+    })
+  }
+}
+
+// Fix para IntersectionObserver (Next Link)
+global.IntersectionObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+// Fix para canvas usado por axe-core
+HTMLCanvasElement.prototype.getContext = jest.fn()
