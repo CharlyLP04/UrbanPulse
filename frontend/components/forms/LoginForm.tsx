@@ -1,12 +1,12 @@
 'use client'
 
 interface LoginFormProps {
-  email: string
-  password: string
-  showError: boolean
-  onEmailChange: (value: string) => void
-  onPasswordChange: (value: string) => void
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
+  email?: string
+  password?: string
+  showError?: boolean
+  onEmailChange?: (value: string) => void
+  onPasswordChange?: (value: string) => void
+  onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
 export function LoginForm({
@@ -33,8 +33,8 @@ export function LoginForm({
             type="email"
             required
             autoComplete="email"
-            value={email}
-            onChange={(e) => onEmailChange(e.target.value)}
+            value={email ?? ''}
+            onChange={(e) => onEmailChange?.(e.target.value)}
             aria-invalid={showError}
             aria-describedby={showError ? "login-error" : undefined}
           />
@@ -47,8 +47,8 @@ export function LoginForm({
             type="password"
             required
             autoComplete="current-password"
-            value={password}
-            onChange={(e) => onPasswordChange(e.target.value)}
+            value={password ?? ''}
+            onChange={(e) => onPasswordChange?.(e.target.value)}
             aria-invalid={showError}
             aria-describedby={showError ? "login-error" : undefined}
           />
