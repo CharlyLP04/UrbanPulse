@@ -9,7 +9,7 @@ interface LoginFormProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
-export default function LoginForm({
+export function LoginForm({
   email,
   password,
   showError,
