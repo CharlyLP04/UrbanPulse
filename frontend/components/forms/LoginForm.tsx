@@ -27,7 +27,7 @@ export function LoginForm({
       <form className="login-form" onSubmit={onSubmit} noValidate>
 
         <div className="form-group">
-          <label htmlFor="email">Correo electrónico</label>
+          <label htmlFor="email">Email</label>
           <input
             id="email"
             type="email"
@@ -41,7 +41,7 @@ export function LoginForm({
         </div>
 
         <div className="form-group">
-          <label htmlFor="password">Contraseña</label>
+          <label htmlFor="password">Password</label>
           <input
             id="password"
             type="password"
