@@ -67,10 +67,12 @@ export async function POST(request: NextRequest) {
         })
 
         // ── 4. Generar tokens JWT ────────────────────────────
+        const normalizedRole = user.role.toLowerCase()
+
         const tokenPayload: TokenPayload = {
             userId: user.id,
             email: user.email,
-            role: user.role,
+            role: normalizedRole,
         }
 
         const accessToken = await signAccessToken(tokenPayload)
@@ -84,7 +86,7 @@ export async function POST(request: NextRequest) {
                     id: user.id,
                     email: user.email,
                     name: user.name,
-                    role: user.role,
+                    role: normalizedRole,
                 },
             },
             { status: 201 }
@@ -117,3 +119,4 @@ export async function POST(request: NextRequest) {
         )
     }
 }
+

@@ -1,5 +1,6 @@
 node_modules/
 .next/
 .env
+.env.*
+*.txt
 tsconfig.tsbuildinfo
-next-env.d.ts
