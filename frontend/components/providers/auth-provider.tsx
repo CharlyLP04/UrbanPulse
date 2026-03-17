@@ -23,34 +23,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Verificar si hay un token guardado
+    const storedUser = localStorage.getItem('auth-user')
     const token = localStorage.getItem('auth-token')
-    if (token) {
-      // Simular decodificación de token (implementar JWT real)
-      const mockUser: User = {
-        id: '1',
-        email: 'usuario@ejemplo.com',
-        name: 'Usuario Ejemplo',
-        role: 'user'
-      }
-      setUser(mockUser)
+
+    if (storedUser && token) {
+      setUser(JSON.parse(storedUser))
     }
+
     setIsLoading(false)
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Simular llamada a API (implementar llamada real)
       if (email && password) {
+        const role: User['role'] = email.includes('admin') ? 'admin' : 'user'
         const mockUser: User = {
           id: '1',
           email,
           name: 'Usuario Ejemplo',
-          role: 'user'
+          role
         }
-        
-        // Guardar token simulado
+
         localStorage.setItem('auth-token', 'mock-jwt-token')
+        localStorage.setItem('auth-user', JSON.stringify(mockUser))
         setUser(mockUser)
         return true
       }
@@ -63,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     localStorage.removeItem('auth-token')
+    localStorage.removeItem('auth-user')
     setUser(null)
   }
 
