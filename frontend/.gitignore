@@ -1,5 +1,11 @@
 node_modules/
 .next/
+coverage/
 .env
-tsconfig.tsbuildinfo
+.env.local
+.env.development
+.env.production
+
+*.tsbuildinfo
+
 next-env.d.ts
