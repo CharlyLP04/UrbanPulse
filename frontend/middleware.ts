@@ -47,7 +47,7 @@ export async function middleware(request: NextRequest) {
   try {
     // Verificar y decodificar token
     const { payload } = await jwtVerify(token, secret)
-    const userRole = payload.role as string
+    const userRole = String(payload.role || '').toLowerCase()
 
     // Verificar rutas de administrador
     if (adminRoutes.some(route => pathname.startsWith(route))) {
