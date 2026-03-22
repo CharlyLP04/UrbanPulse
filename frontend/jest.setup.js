@@ -55,3 +55,8 @@ export function resetMatchMedia() {
     value: originalMatchMedia,
   })
 }
+
+// Mock HTMLCanvasElement for axe-core color contrast checks in JSDOM
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = jest.fn();
+}
