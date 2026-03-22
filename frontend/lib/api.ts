@@ -26,14 +26,81 @@ export interface Report {
   }
 }
 
+let isRefreshing = false;
+let refreshSubscribers: ((success: boolean) => void)[] = [];
+
+const onRefreshResponse = (success: boolean) => {
+  refreshSubscribers.forEach(cb => cb(success));
+  refreshSubscribers = [];
+}
+
+const addRefreshSubscriber = (cb: (success: boolean) => void) => {
+  refreshSubscribers.push(cb);
+}
+
+let isRedirecting = false;
+const triggerSessionExpired = () => {
+  if (isRedirecting) return;
+  isRedirecting = true;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('session-expired'));
+    window.location.href = '/auth/login';
+  }
+}
+
+const handleRefresh = async (): Promise<boolean> => {
+  if (isRefreshing) {
+    return new Promise(resolve => {
+      addRefreshSubscriber(resolve);
+    })
+  }
+
+  isRefreshing = true;
+
+  try {
+    const res = await fetch('/api/auth/refresh', { method: 'POST' });
+    const success = res.ok;
+    onRefreshResponse(success);
+    isRefreshing = false;
+
+    if (!success) {
+      triggerSessionExpired();
+    }
+
+    return success;
+  } catch (error) {
+    onRefreshResponse(false);
+    isRefreshing = false;
+    triggerSessionExpired();
+    return false;
+  }
+}
+
+const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  let res = await fetch(input, init);
+
+  if (res.status === 401) {
+    const refreshSuccess = await handleRefresh();
+
+    if (refreshSuccess) {
+      res = await fetch(input, init);
+    } else {
+      triggerSessionExpired();
+      return res;
+    }
+  }
+
+  return res;
+}
+
 export const getReports = async (): Promise<Report[]> => {
-  const res = await fetch('/api/reports', { cache: 'no-store' })
+  const res = await customFetch('/api/reports', { cache: 'no-store' })
   if (!res.ok) throw new Error('Error al obtener reportes')
   return res.json()
 }
 
 export const getReportById = async (id: string): Promise<Report> => {
-  const res = await fetch(`/api/reports/${id}`, { cache: 'no-store' })
+  const res = await customFetch(`/api/reports/${id}`, { cache: 'no-store' })
   if (!res.ok) throw new Error('Error al obtener reporte')
   return res.json()
 }
@@ -47,7 +114,7 @@ export const createReport = async (
     categoryId?: string
   }
 ): Promise<Report> => {
-  const res = await fetch('/api/reports', {
+  const res = await customFetch('/api/reports', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),

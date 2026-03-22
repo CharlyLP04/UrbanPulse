@@ -23,31 +23,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('auth-user')
-    const token = localStorage.getItem('auth-token')
+    const channel = new BroadcastChannel('auth-channel')
 
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser))
+    channel.onmessage = (event) => {
+      if (event.data === 'sync') {
+        checkSession()
+      } else if (event.data === 'logout') {
+        setUser(null)
+        window.location.href = '/auth/login'
+      } else if (event.data === 'session-expired') {
+        setUser(null)
+        window.location.href = '/auth/login'
+      }
     }
 
-    setIsLoading(false)
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me')
+        if (res.ok) {
+          const userData = await res.json()
+          setUser(userData)
+        } else {
+          setUser(null)
+        }
+      } catch (error) {
+        setUser(null)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    checkSession()
+
+    const handleSessionExpired = () => {
+      setUser(null)
+      channel.postMessage('session-expired')
+      window.location.href = '/auth/login'
+    }
+
+    window.addEventListener('session-expired', handleSessionExpired as EventListener)
+
+    return () => {
+      channel.close()
+      window.removeEventListener('session-expired', handleSessionExpired as EventListener)
+    }
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       if (email && password) {
-        const role: User['role'] = email.includes('admin') ? 'admin' : 'user'
-        const mockUser: User = {
-          id: '1',
-          email,
-          name: 'Usuario Ejemplo',
-          role
-        }
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        })
 
-        localStorage.setItem('auth-token', 'mock-jwt-token')
-        localStorage.setItem('auth-user', JSON.stringify(mockUser))
-        setUser(mockUser)
-        return true
+        if (res.ok) {
+          const userData = await res.json()
+          setUser(userData)
+          
+          const channel = new BroadcastChannel('auth-channel')
+          channel.postMessage('sync')
+          channel.close()
+          
+          return true
+        }
       }
       return false
     } catch (error) {
@@ -57,9 +97,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
-    localStorage.removeItem('auth-token')
-    localStorage.removeItem('auth-user')
-    setUser(null)
+    fetch('/api/auth/logout', { method: 'POST' })
+      .catch(err => console.error('Error en logout:', err))
+      .finally(() => {
+        setUser(null)
+        const channel = new BroadcastChannel('auth-channel')
+        channel.postMessage('logout')
+        channel.close()
+        window.location.href = '/auth/login'
+      })
   }
 
   return (
