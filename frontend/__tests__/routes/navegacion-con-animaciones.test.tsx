@@ -7,7 +7,7 @@ describe('Navegacion con Animaciones - Accesibilidad', () => {
     it('renderiza la barra de navegacion correctamente', () => {
       render(<Navbar />)
       expect(screen.getByRole('navigation')).toBeInTheDocument()
-      expect(screen.getByLabelText('Navegacion principal')).toBeInTheDocument()
+      expect(screen.getByLabelText('Navegación principal')).toBeInTheDocument()
     })
 
     it('todos los enlaces son enfocables con Tab', () => {
