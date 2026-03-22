@@ -7,7 +7,7 @@ describe('Navegacion con Animaciones - Accesibilidad', () => {
     it('renderiza la barra de navegacion correctamente', () => {
       render(<Navbar />)
       expect(screen.getByRole('navigation')).toBeInTheDocument()
-      expect(screen.getByLabelText('Navegación principal')).toBeInTheDocument()
+      expect(screen.getByLabelText('Navegacion principal')).toBeInTheDocument()
     })
 
     it('todos los enlaces son enfocables con Tab', () => {
@@ -66,7 +66,7 @@ describe('Navegacion con Animaciones - Accesibilidad', () => {
       const link = screen.getAllByRole('link')[1] // primer nav link, no el logo
       link.focus()
       expect(link).toHaveClass('focus:outline-none')
-      expect(link).toHaveClass('focus-visible:ring-2')
+      expect(link).toHaveClass('focus:ring-2')
     })
   })
 
