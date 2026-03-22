@@ -1,6 +1,7 @@
 import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { Breadcrumb } from '@/components/layout/Breadcrumb'
+import { AuthProvider } from '@/components/providers/auth-provider'
 
 // Metadata para SEO
 export const metadata = {
@@ -19,6 +20,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
+        <AuthProvider>
         {/* Skip links para accesibilidad - PRIMEROS en el DOM */}
         <div className="skip-links" aria-label="Enlaces de salto">
           <a href="#main-navigation" className="skip-link" tabIndex={0}>
@@ -54,7 +56,9 @@ export default function RootLayout({
         <footer id="site-footer" tabIndex={-1}>
           <p>&copy; 2024 UrbanPulse - Municipalidad</p>
         </footer>
+        </AuthProvider>
       </body>
+      
     </html>
   )
 }
