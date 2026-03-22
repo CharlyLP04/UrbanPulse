@@ -34,7 +34,7 @@ describe('Navbar Component', () => {
   test('navigation has proper ARIA labels', () => {
     render(<Navbar />)
     const nav = screen.getByRole('navigation')
-    expect(nav).toHaveAttribute('aria-label', 'Navegacion principal')
+    expect(nav).toHaveAttribute('aria-label', 'Navegación principal')
     expect(nav).toHaveAttribute('role', 'navigation')
   })
 
