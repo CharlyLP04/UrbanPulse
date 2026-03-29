@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { KeyboardEvent } from 'react'
 import { useRef } from 'react'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/components/providers/auth-provider'
 
 type NavItem = {
   label: string
@@ -12,13 +13,18 @@ type NavItem = {
 export function Navbar() {
   const pathname = usePathname()
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([])
+  const { user, logout } = useAuth()
 
   const navItems: NavItem[] = [
     { label: 'Inicio', href: '/' },
     { label: 'Explorar', href: '/public/explore' },
-    { label: 'Login', href: '/auth/login' },
-    { label: 'Dashboard', href: '/dashboard/home' },
   ]
+
+  if (user) {
+    navItems.push({ label: 'Dashboard', href: '/dashboard/home' })
+  } else {
+    navItems.push({ label: 'Login', href: '/auth/login' })
+  }
 
   const handleArrowNavigation = (event: KeyboardEvent<HTMLUListElement>) => {
     const keys = ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Home', 'End']
@@ -94,11 +100,12 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* Links Section */}
-          <ul
-            onKeyDown={handleArrowNavigation}
-            className="flex list-none gap-2 sm:gap-6 p-0 items-center"
-          >
+          {/* Nav & User Controls */}
+          <div className="flex items-center gap-2 sm:gap-6">
+            <ul
+              onKeyDown={handleArrowNavigation}
+              className="flex list-none gap-2 sm:gap-6 p-0 items-center"
+            >
             {navItems.map((item, index) => {
               const isActive =
                 item.href === '/'
@@ -128,7 +135,28 @@ export function Navbar() {
                 </li>
               )
             })}
-          </ul>
+            </ul>
+            
+            {user && (
+              <div className="flex items-center gap-3 sm:gap-4 pl-2 sm:pl-4 border-l border-sky-300/30">
+                <div className="text-right hidden sm:block">
+                  <div className="text-white font-black text-sm uppercase leading-tight">{user.name}</div>
+                  <div className="text-sky-300 text-[10px] uppercase font-bold tracking-widest">{user.role}</div>
+                </div>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg border-2 border-white/20">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <button 
+                  onClick={logout} 
+                  className="text-blue-200 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all duration-200 active:scale-95 ml-1" 
+                  title="Cerrar sesión"
+                  aria-label="Cerrar sesión"
+                >
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </nav>

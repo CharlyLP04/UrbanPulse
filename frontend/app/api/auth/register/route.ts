@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../../lib/db'
 import { hashPassword } from '../../../../lib/password'
-import { signAccessToken, signRefreshToken, TokenPayload } from '../../../../lib/auth'
+import { sendVerificationEmail } from '../../../../lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,6 +49,11 @@ export async function POST(request: NextRequest) {
 
         // ── 3. Hashear contraseña y crear usuario ────────────
         const hashedPassword = await hashPassword(password)
+        
+        // Generar código de verificación de 6 dígitos
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
+        const verificationCodeExpiry = new Date()
+        verificationCodeExpiry.setMinutes(verificationCodeExpiry.getMinutes() + 30) // 30 minutos
 
         const user = await prisma.user.create({
             data: {
@@ -56,59 +61,29 @@ export async function POST(request: NextRequest) {
                 name,
                 password: hashedPassword,
                 role: 'USER',
+                emailVerified: false,
+                verificationCode,
+                verificationCodeExpiry
             },
             select: {
                 id: true,
                 email: true,
-                name: true,
-                role: true,
-                createdAt: true,
             },
         })
 
-        // ── 4. Generar tokens JWT ────────────────────────────
-        const tokenPayload: TokenPayload = {
-            userId: user.id,
-            email: user.email,
-            role: user.role,
-        }
+        // ── 4. Enviar correo de verificación ─────────────────
+        await sendVerificationEmail(email, verificationCode)
 
-        const accessToken = await signAccessToken(tokenPayload)
-        const refreshToken = await signRefreshToken(tokenPayload)
-
-        // ── 5. Construir respuesta con cookies ───────────────
-        const response = NextResponse.json(
+        // ── 5. Construir respuesta (Sin loguear) ───────────────
+        return NextResponse.json(
             {
                 success: true,
-                user: {
-                    id: user.id,
-                    email: user.email,
-                    name: user.name,
-                    role: user.role,
-                },
+                message: 'Usuario registrado. Por favor revisa tu correo para verificar tu cuenta.',
+                requiresEmailVerification: true,
+                email: user.email
             },
             { status: 201 }
         )
-
-        // Cookie de acceso (15 minutos)
-        response.cookies.set('auth-token', accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 15 * 60, // 15 minutos en segundos
-            path: '/',
-        })
-
-        // Cookie de refresh (7 días)
-        response.cookies.set('refresh-token', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60, // 7 días en segundos
-            path: '/',
-        })
-
-        return response
     } catch (error) {
         console.error('Error en registro:', error)
         return NextResponse.json(

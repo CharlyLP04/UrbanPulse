@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import styles from './LandingPage.module.css'
-import { useArrowMenuNavigation } from '@/components/wireframes/shared/useArrowMenuNavigation'
 
 const navItems = [
   { label: 'Inicio', href: '#inicio' },
@@ -12,40 +11,10 @@ const navItems = [
 ]
 
 export default function LandingPage() {
-  const { itemRefs, onKeyDown } = useArrowMenuNavigation<HTMLAnchorElement>()
 
   return (
     <div className={styles.page}>
-      <nav className={styles.navbar}>
-        <div className={styles.navContainer}>
-          <div className={styles.logo}>🏙️ UrbanPulse</div>
-          <ul className={styles.navLinks} onKeyDown={onKeyDown}>
-            {navItems.map((item, index) => (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  ref={(element) => {
-                    itemRefs.current[index] = element
-                  }}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link
-                href="/auth/login"
-                className={styles.btnPrimary}
-                ref={(element) => {
-                  itemRefs.current[navItems.length] = element
-                }}
-              >
-                Iniciar Sesión
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
+
 
       <section id="inicio" className={styles.hero}>
         <div className={styles.heroContent}>

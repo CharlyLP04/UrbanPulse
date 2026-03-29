@@ -75,10 +75,13 @@ describe('Auth Me API', () => {
 
     expect(response.status).toBe(200)
     expect(data).toEqual({
-      id: 'user-1',
-      email: 'user@test.com',
-      name: 'Usuario Demo',
-      role: 'admin',
+      success: true,
+      user: {
+        id: 'user-1',
+        email: 'user@test.com',
+        name: 'Usuario Demo',
+        role: 'admin',
+      }
     })
   })
 })
