@@ -24,7 +24,7 @@ export default function RegisterForm({
   return (
     <>
       <div className={`success-message ${showSuccess ? 'show' : ''}`}>
-        ✅ ¡Registro exitoso! Revisa tu correo para verificar tu cuenta.
+        ✅ ¡Registro exitoso! Redirigiendo a Iniciar Sesión...
       </div>
 
       <form onSubmit={onSubmit}>

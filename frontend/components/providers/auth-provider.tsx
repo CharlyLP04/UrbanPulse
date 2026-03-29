@@ -9,9 +9,50 @@ interface User {
   role: 'admin' | 'user'
 }
 
+let isRefreshing = false
+let refreshPromise: Promise<boolean> | null = null
+
+export const fetchApi = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  let res = await fetch(url, options)
+
+  // Si el token original expiró (HTTTP 401)
+  if (res.status === 401) {
+    if (!isRefreshing) {
+      isRefreshing = true
+      
+      // Bloqueamos (mutex) y ejecutamos refresh una sola vez
+      refreshPromise = fetch('/api/auth/refresh', { method: 'POST' }).then(r => r.ok)
+      
+      const success = await refreshPromise
+      isRefreshing = false
+      refreshPromise = null
+
+      if (success) {
+        // Retry petición original
+        return fetch(url, options)
+      } else {
+        // Refresh falló, liquidamos sesión en todas las pestañas
+        window.dispatchEvent(new Event('session-expired'))
+        return res
+      }
+    } else if (refreshPromise) {
+      // Las demás llamadas en vuelo (ej. Dashboard cargando 5 widgets)
+      // esperan a la promesa original en lugar de mandar 5 refresh tokens
+      const success = await refreshPromise
+      if (success) {
+        return fetch(url, options)
+      } else {
+        return res
+      }
+    }
+  }
+
+  return res
+}
+
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<boolean>
+  login: (email: string, password: string) => Promise<{success: boolean, role?: string}>
   logout: () => void
   isLoading: boolean
 }
@@ -28,12 +69,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     channel.onmessage = (event) => {
       if (event.data === 'sync') {
         checkSession()
-      } else if (event.data === 'logout') {
+      } else if (event.data === 'logout' || event.data === 'session-expired') {
         setUser(null)
-        window.location.href = '/auth/login'
-      } else if (event.data === 'session-expired') {
-        setUser(null)
-        window.location.href = '/auth/login'
+        if (window.location.pathname !== '/auth/login') {
+          window.location.href = '/auth/login'
+        }
       }
     }
 
@@ -42,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const res = await fetch('/api/auth/me')
         if (res.ok) {
           const userData = await res.json()
-          setUser(userData)
+          setUser(userData.user)
         } else {
           setUser(null)
         }
@@ -58,7 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const handleSessionExpired = () => {
       setUser(null)
       channel.postMessage('session-expired')
-      window.location.href = '/auth/login'
+      if (window.location.pathname !== '/auth/login') {
+        window.location.href = '/auth/login'
+      }
     }
 
     window.addEventListener('session-expired', handleSessionExpired as EventListener)
@@ -69,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{success: boolean, role?: string}> => {
     try {
       if (email && password) {
         const res = await fetch('/api/auth/login', {
@@ -80,19 +122,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (res.ok) {
           const userData = await res.json()
-          setUser(userData)
+          setUser(userData.user)
           
           const channel = new BroadcastChannel('auth-channel')
           channel.postMessage('sync')
           channel.close()
           
-          return true
+          return { success: true, role: userData.user.role }
         }
       }
-      return false
+      return { success: false }
     } catch (error) {
       console.error('Error en login:', error)
-      return false
+      return { success: false }
     }
   }
 

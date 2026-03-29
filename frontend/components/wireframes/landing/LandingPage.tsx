@@ -2,50 +2,10 @@
 
 import Link from 'next/link'
 import styles from './LandingPage.module.css'
-import { useArrowMenuNavigation } from '@/components/wireframes/shared/useArrowMenuNavigation'
-
-const navItems = [
-  { label: 'Inicio', href: '#inicio' },
-  { label: 'Reportes', href: '/public/explore' },
-  { label: 'Cómo Funciona', href: '#como-funciona' },
-  { label: 'Contacto', href: '#contacto' },
-]
 
 export default function LandingPage() {
-  const { itemRefs, onKeyDown } = useArrowMenuNavigation<HTMLAnchorElement>()
-
   return (
     <div className={styles.page}>
-      <nav className={styles.navbar}>
-        <div className={styles.navContainer}>
-          <div className={styles.logo}>🏙️ UrbanPulse</div>
-          <ul className={styles.navLinks} onKeyDown={onKeyDown}>
-            {navItems.map((item, index) => (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  ref={(element) => {
-                    itemRefs.current[index] = element
-                  }}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link
-                href="/auth/login"
-                className={styles.btnPrimary}
-                ref={(element) => {
-                  itemRefs.current[navItems.length] = element
-                }}
-              >
-                Iniciar Sesión
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
 
       <section id="inicio" className={styles.hero}>
         <div className={styles.heroContent}>
@@ -161,16 +121,16 @@ export default function LandingPage() {
             <h3>Legal</h3>
             <ul>
               <li>
-                <Link href="#">Términos de Uso</Link>
+                <a href="#" onClick={(e) => { e.preventDefault(); alert('Sección Términos de Uso estará disponible próximamente.') }}>Términos de Uso</a>
               </li>
               <li>
-                <Link href="#">Privacidad</Link>
+                <a href="#" onClick={(e) => { e.preventDefault(); alert('Sección Privacidad estará disponible próximamente.') }}>Privacidad</a>
               </li>
               <li>
-                <Link href="#">Accesibilidad</Link>
+                <a href="#" onClick={(e) => { e.preventDefault(); alert('Sección Accesibilidad estará disponible próximamente.') }}>Accesibilidad</a>
               </li>
               <li>
-                <Link href="#">API Pública</Link>
+                <a href="#" onClick={(e) => { e.preventDefault(); alert('Documentación de la API Pública estará disponible próximamente.') }}>API Pública</a>
               </li>
             </ul>
           </div>

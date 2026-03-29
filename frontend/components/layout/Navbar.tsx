@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { KeyboardEvent } from 'react'
 import { useRef } from 'react'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/components/providers/auth-provider'
 
 type NavItem = {
   label: string
@@ -12,12 +13,13 @@ type NavItem = {
 export function Navbar() {
   const pathname = usePathname()
   const linkRefs = useRef<(HTMLAnchorElement | null)[]>([])
+  const { user, logout, isLoading } = useAuth()
 
-  const navItems: NavItem[] = [
+  const navItems = [
     { label: 'Inicio', href: '/' },
     { label: 'Explorar', href: '/public/explore' },
-    { label: 'Login', href: '/auth/login' },
-    { label: 'Dashboard', href: '/dashboard/home' },
+    ...(!user && !isLoading ? [{ label: 'Login', href: '/auth/login' }] : []),
+    ...(user ? [{ label: 'Dashboard', href: '/dashboard/home' }] : []),
   ]
 
   const handleArrowNavigation = (event: KeyboardEvent<HTMLUListElement>) => {
@@ -95,40 +97,70 @@ export function Navbar() {
           </Link>
 
           {/* Links Section */}
-          <ul
-            onKeyDown={handleArrowNavigation}
-            className="flex list-none gap-2 sm:gap-6 p-0 items-center"
-          >
-            {navItems.map((item, index) => {
-              const isActive =
-                item.href === '/'
-                  ? pathname === item.href
-                  : pathname?.startsWith(item.href)
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap pb-2 sm:pb-0 justify-end flex-1 pl-4">
+            <ul
+              onKeyDown={handleArrowNavigation}
+              className="flex list-none gap-2 sm:gap-6 p-0 items-center overflow-x-auto scrolbar-hide whitespace-nowrap"
+            >
+              {navItems.map((item, index) => {
+                const isActive =
+                  item.href === '/'
+                    ? pathname === item.href
+                    : pathname?.startsWith(item.href)
 
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    ref={(element) => {
-                      linkRefs.current[index] = element
-                    }}
-                    tabIndex={0}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={`relative flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
-                      isActive
-                        ? 'text-white bg-white/10 shadow-inner'
-                        : 'text-blue-100 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {item.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-sky-300 rounded-t-full shadow-[0_-2px_6px_rgba(125,211,252,0.6)]"></span>
-                    )}
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
+                return (
+                  <li key={item.href} className="shrink-0">
+                    <Link
+                      href={item.href}
+                      ref={(element) => {
+                        linkRefs.current[index] = element
+                      }}
+                      tabIndex={0}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`relative flex items-center justify-center px-3 sm:px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
+                        isActive
+                          ? 'text-white bg-white/10 shadow-inner'
+                          : 'text-blue-100 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      {item.label}
+                      {isActive && (
+                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-sky-300 rounded-t-full shadow-[0_-2px_6px_rgba(125,211,252,0.6)]"></span>
+                      )}
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+
+            {/* User Profile Area */}
+            {!isLoading && user && (
+              <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-blue-400/30 shrink-0">
+                <div className="flex flex-col items-end hidden lg:flex">
+                  <span className="text-sm font-bold text-white leading-tight">
+                    {user.name || 'Ciudadano'}
+                  </span>
+                  <span className="text-xs text-sky-200 capitalize">
+                    {user.role || 'Usuario'}
+                  </span>
+                </div>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-sky-400 to-blue-500 flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white/20 shrink-0 select-none">
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                
+                <button 
+                  onClick={() => logout()}
+                  className="p-1.5 sm:p-2 rounded-full text-blue-200 hover:text-white hover:bg-red-500/20 transition-colors group shrink-0"
+                  title="Cerrar Sesión"
+                  aria-label="Cerrar Sesión"
+                >
+                  <svg className="w-5 h-5 group-hover:text-red-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </nav>

@@ -27,67 +27,84 @@ export interface Report {
 }
 
 let isRefreshing = false;
-let refreshSubscribers: ((success: boolean) => void)[] = [];
-
-const onRefreshResponse = (success: boolean) => {
-  refreshSubscribers.forEach(cb => cb(success));
-  refreshSubscribers = [];
-}
-
-const addRefreshSubscriber = (cb: (success: boolean) => void) => {
-  refreshSubscribers.push(cb);
-}
+let refreshPromise: Promise<boolean> | null = null;
+const channel = typeof window !== 'undefined' ? new BroadcastChannel('auth-channel') : null;
 
 let isRedirecting = false;
 const triggerSessionExpired = () => {
   if (isRedirecting) return;
   isRedirecting = true;
+  if (channel) {
+    channel.postMessage('session-expired');
+  }
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('session-expired'));
-    window.location.href = '/auth/login';
+  }
+}
+
+const performRefresh = async (): Promise<boolean> => {
+  try {
+    const res = await fetch('/api/auth/refresh', { method: 'POST' });
+    const success = res.ok;
+    if (!success) {
+      triggerSessionExpired();
+    }
+    return success;
+  } catch (error) {
+    triggerSessionExpired();
+    return false;
   }
 }
 
 const handleRefresh = async (): Promise<boolean> => {
-  if (isRefreshing) {
-    return new Promise(resolve => {
-      addRefreshSubscriber(resolve);
-    })
+  if (isRefreshing && refreshPromise) {
+    // Si ya estamos refrescando en ESTA pestaña, esperamos a la promesa
+    return refreshPromise;
   }
-
+  
   isRefreshing = true;
 
-  try {
-    const res = await fetch('/api/auth/refresh', { method: 'POST' });
-    const success = res.ok;
-    onRefreshResponse(success);
-    isRefreshing = false;
-
-    if (!success) {
+  // Creamos la promesa del refresh usando Web Locks si está disponible
+  refreshPromise = new Promise<boolean>(async (resolve) => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.locks) {
+        // Bloqueo entre pestañas para asegurar un solo refresh simultáneo
+        await navigator.locks.request('auth-refresh-lock', async () => {
+          // Volver a verificar sesión porque otra pestaña pudo haberla renovado
+          // idealmente haríamos un fetch a algo rápido o confiamos en el endpoint
+          const result = await performRefresh();
+          resolve(result);
+        });
+      } else {
+        // Fallback si no hay soporte de Web Locks
+        const result = await performRefresh();
+        resolve(result);
+      }
+    } catch (e) {
       triggerSessionExpired();
+      resolve(false);
+    } finally {
+      isRefreshing = false;
+      refreshPromise = null;
     }
+  });
 
-    return success;
-  } catch (error) {
-    onRefreshResponse(false);
-    isRefreshing = false;
-    triggerSessionExpired();
-    return false;
-  }
+  return refreshPromise;
 }
 
 const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   let res = await fetch(input, init);
 
   if (res.status === 401) {
+    // Evita retries infinitos si ya estamos redirigiendo
+    if (isRedirecting) return res;
+
     const refreshSuccess = await handleRefresh();
 
     if (refreshSuccess) {
       res = await fetch(input, init);
-    } else {
-      triggerSessionExpired();
-      return res;
     }
+    // Si falla, el triggerSessionExpired ya maneja la redirección a través del evento o BroadcastChannel
   }
 
   return res;
