@@ -185,6 +185,38 @@ const validateReport = (data: ReportData): string[] => {
 ## 🔧 Configuraciones Pendientes
 Archivos prioritarios por crear: `next.config.js`, `tsconfig.json`, `.eslintrc.json`, `.env.example`
 
+## 🔐 Variables de Entorno
+
+### Variables Requeridas
+| Variable | Descripción | Ubicación |
+|----------|-------------|-----------|
+| `JWT_SECRET` | Clave secreta para firmar access tokens (15 min) | Raíz + Frontend |
+| `JWT_REFRESH_SECRET` | Clave secreta para firmar refresh tokens (7 días) | Raíz + Frontend |
+| `NODE_ENV` | Entorno de ejecución (`development` \| `production`) | Raíz + Frontend |
+| `DATABASE_URL` | URL de conexión PostgreSQL | Frontend |
+
+### Configuración de Cookies (NODE_ENV)
+```bash
+# Desarrollo (localhost) - secure: false
+NODE_ENV=development
+
+# Producción - secure: true (requiere HTTPS)
+NODE_ENV=production
+```
+
+**Nota:** `secure: true` en cookies requiere HTTPS. En desarrollo local (HTTP), debe usarse `NODE_ENV=development`.
+
+### Archivos .env.example
+- `.env.example` (raíz): Variables generales del proyecto
+- `frontend/.env.example`: Variables específicas del frontend
+
+### Archivos .env (NO subir a git)
+- `.env` (raíz)
+- `frontend/.env`
+- `frontend/.env.local`
+- `frontend/.env.development`
+- `frontend/.env.production`
+
 ## 📝 Notas para Agentes
 
 1. **Proyecto en desarrollo:** Estructura creada pero sin implementación funcional aún
