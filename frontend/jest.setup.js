@@ -15,6 +15,18 @@ if (!global.crypto.randomUUID) {
   global.crypto.randomUUID = randomUUID
 }
 
+if (!Response.json) {
+  Response.json = function (data, init = {}) {
+    return new Response(JSON.stringify(data), {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(init.headers || {}),
+      },
+    })
+  }
+}
+
 expect.extend(toHaveNoViolations)
 
 Object.defineProperty(window, 'matchMedia', {
