@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '../../../lib/db'
+import { TokenPayload, verifyAccessToken } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,23 +45,49 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { title, description, location, userId, categoryId } = body
+    const authToken = request.cookies.get('auth-token')?.value
 
-    if (!title || !description || !userId) {
+    if (!authToken) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Faltan campos obligatorios (title, description, userId)',
+          message: 'Sesión no válida o expirada.',
+        },
+        { status: 401 }
+      )
+    }
+
+    let tokenPayload: TokenPayload
+
+    try {
+      tokenPayload = await verifyAccessToken(authToken)
+    } catch {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Sesión no válida o expirada.',
+        },
+        { status: 401 }
+      )
+    }
+
+    const body = await request.json()
+    const { title, description, location, categoryId } = body
+
+    if (!title || !description) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Faltan campos obligatorios (title, description)',
         },
         { status: 400 }
       )
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: tokenPayload.userId },
     })
 
     if (!user) {
@@ -78,7 +105,7 @@ export async function POST(request: Request) {
         title,
         description,
         location,
-        userId,
+        userId: tokenPayload.userId,
         categoryId,
       },
     })

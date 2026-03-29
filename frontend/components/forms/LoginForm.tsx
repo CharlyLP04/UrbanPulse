@@ -1,51 +1,118 @@
 'use client'
 
-import { useState } from 'react'
+import React from 'react'
 
-export function LoginForm() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+interface LoginFormProps {
+  email?: string
+  password?: string
+  showError?: boolean
+  emailError?: string
+  passwordError?: string
+  onEmailChange?: (value: string) => void
+  onPasswordChange?: (value: string) => void
+  onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void
+}
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!email || !password) {
-      setError('Todos los campos son obligatorios')
-      return
-    }
-
-    setError('')
-    console.log('Login enviado')
-  }
+export function LoginForm({
+  email,
+  password,
+  showError,
+  emailError,
+  passwordError,
+  onEmailChange,
+  onPasswordChange,
+  onSubmit
+}: LoginFormProps) {
+  const emailHasError = Boolean(emailError)
+  const passwordHasError = Boolean(passwordError)
+  const hasFieldErrors = emailHasError || passwordHasError
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>Iniciar sesión</h2>
-
-      <div>
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+    <div className="login-form-container">
+      <div className="form-header">
+        <h2>Iniciar sesión</h2>
+        <p>Accede a tu cuenta para gestionar reportes ciudadanos</p>
       </div>
 
-      <div>
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+      <form className="login-form" onSubmit={onSubmit} noValidate>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email ?? ''}
+            onChange={(e) => onEmailChange?.(e.target.value)}
+            aria-invalid={emailHasError || showError}
+            aria-describedby={
+              emailHasError ? 'email-error' : showError ? 'login-error' : undefined
+            }
+          />
+          {emailHasError && (
+            <div id="email-error" className="field-error" role="alert" aria-live="assertive">
+              {emailError}
+            </div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password ?? ''}
+            onChange={(e) => onPasswordChange?.(e.target.value)}
+            aria-invalid={passwordHasError || showError}
+            aria-describedby={
+              passwordHasError ? 'password-error' : showError ? 'login-error' : undefined
+            }
+          />
+          {passwordHasError && (
+            <div id="password-error" className="field-error" role="alert" aria-live="assertive">
+              {passwordError}
+            </div>
+          )}
+        </div>
+
+        <div className="form-options">
+          <label className="remember-me">
+            <input type="checkbox" />
+            Recordarme
+          </label>
+
+          <a href="/auth/forgot-password" className="forgot-password">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+
+        {showError && !hasFieldErrors && (
+          <div
+            id="login-error"
+            className="error-message show"
+            role="alert"
+            aria-live="assertive"
+          >
+            Credenciales inválidas. Verifique su correo y contraseña.
+          </div>
+        )}
+
+        <button type="submit" className="btn-login">
+          Iniciar sesión
+        </button>
+      </form>
+
+      <div className="divider">o</div>
+
+      <button className="btn-social">
+        Continuar con Google
+      </button>
+
+      <div className="signup-prompt">
+        ¿No tienes cuenta? <a href="/auth/register">Regístrate</a>
       </div>
-
-      {error && <p role="alert">{error}</p>}
-
-      <button type="submit">Iniciar sesión</button>
-    </form>
+    </div>
   )
 }
