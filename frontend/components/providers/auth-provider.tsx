@@ -13,7 +13,7 @@ let isRefreshing = false
 let refreshPromise: Promise<boolean> | null = null
 
 export const fetchApi = async (url: string, options: RequestInit = {}): Promise<Response> => {
-  let res = await fetch(url, options)
+  const res = await fetch(url, options)
 
   // Si el token original expiró (HTTTP 401)
   if (res.status === 401) {
