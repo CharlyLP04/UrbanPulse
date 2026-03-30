@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, FormEvent, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import LoginBranding from '@/components/wireframes/login/LoginBranding'
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState('')
@@ -135,5 +135,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-80px)] w-full flex items-center justify-center bg-[#0f4c75] text-white font-bold">Cargando...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }
