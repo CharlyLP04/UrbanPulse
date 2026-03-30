@@ -42,10 +42,13 @@ export async function GET(request: NextRequest) {
 
     return Response.json(
       {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role.toLowerCase(),
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role.toLowerCase(),
+        }
       },
       { status: 200 }
     )
