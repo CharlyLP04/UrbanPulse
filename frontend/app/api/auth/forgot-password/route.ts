@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         // Generar un UUID o token seguro para la recuperación
         const resetToken = crypto.randomBytes(32).toString('hex')
         const resetTokenExpiry = new Date()
-        resetTokenExpiry.setHours(resetTokenExpiry.getHours() + 1) // 1 hora de validez
+        resetTokenExpiry.setMinutes(resetTokenExpiry.getMinutes() + (parseInt(process.env.RESET_TOKEN_EXPIRY_MINUTES || '30')))
 
         await prisma.user.update({
             where: { id: user.id },
@@ -42,8 +42,7 @@ export async function POST(request: NextRequest) {
             }
         })
 
-        // En desarrollo origin puede fallar si estamos detrás de proxys raros, aseguramos fallback
-        const origin = process.env.NEXT_PUBLIC_API_URL || request.nextUrl.origin || 'http://localhost:3000'
+        const origin = process.env.APP_URL || request.nextUrl.origin || 'http://localhost:3000'
         const resetLink = `${origin}/auth/reset-password?token=${resetToken}`
 
         await sendPasswordResetLink(user.email, resetLink)
