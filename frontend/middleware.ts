@@ -6,41 +6,66 @@ const secret = new TextEncoder().encode(
   process.env.JWT_SECRET || 'fallback-secret-key'
 )
 
-// Rutas públicas (acceso sin autenticación)
-const publicRoutes = [
-  '/',
-  '/auth/login',
-  '/auth/register',
-  '/public/explore',
-]
+// Rutas completamente públicas (sin autenticación, coincidencia exacta o prefijos)
+const publicExactRoutes = ['/', '/public/explore']
+const publicPrefixRoutes = ['/auth/']
 
 // Rutas de administrador (requieren rol admin)
-const adminRoutes = [
-  '/admin/dashboard',
-  '/admin/moderation',
-]
+const adminPrefixRoutes = ['/admin/']
 
-// Rutas de usuario (requieren autenticación)
-const protectedRoutes = [
-  '/dashboard',
-  '/dashboard/create-report',
-  '/dashboard/home',
-  '/dashboard/profile',
-]
+// Rutas protegidas de usuario (requieren cualquier rol autenticado)
+const protectedPrefixRoutes = ['/dashboard/']
+
+/**
+ * Determina si una ruta es pública (no requiere autenticación).
+ */
+function isPublicRoute(pathname: string): boolean {
+  if (publicExactRoutes.includes(pathname)) return true
+  return publicPrefixRoutes.some(prefix => pathname.startsWith(prefix))
+}
+
+/**
+ * Determina si una ruta es exclusiva del administrador.
+ */
+function isAdminRoute(pathname: string): boolean {
+  return adminPrefixRoutes.some(prefix => pathname.startsWith(prefix))
+}
+
+/**
+ * Determina si una ruta requiere autenticación de usuario.
+ */
+function isProtectedRoute(pathname: string): boolean {
+  return protectedPrefixRoutes.some(prefix => pathname.startsWith(prefix))
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Permitir acceso a rutas públicas
-  if (publicRoutes.some(route => pathname.startsWith(route))) {
+  // 1. Verificar si es ruta pública
+  if (isPublicRoute(pathname)) {
+    // Si el usuario ya está autenticado e intenta ir a /auth/*,
+    // redirigirlo a su dashboard.
+    if (pathname.startsWith('/auth/')) {
+      const token = request.cookies.get('auth-token')?.value
+      if (token) {
+        try {
+          await jwtVerify(token, secret)
+          // Token válido: redirigir a dashboard
+          return NextResponse.redirect(new URL('/dashboard/home', request.url))
+        } catch {
+          // Token inválido: permítir acceso a la página de auth
+          return NextResponse.next()
+        }
+      }
+    }
     return NextResponse.next()
   }
 
-  // Verificar token JWT
+  // 2. Para rutas no públicas, verificar token JWT
   const token = request.cookies.get('auth-token')?.value
 
   if (!token) {
-    // Redirigir a login si no hay token
+    // Sin token: redirigir a login
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
 
@@ -49,25 +74,31 @@ export async function middleware(request: NextRequest) {
     const { payload } = await jwtVerify(token, secret)
     const userRole = String(payload.role || '').toLowerCase()
 
-    // Verificar rutas de administrador
-    if (adminRoutes.some(route => pathname.startsWith(route))) {
+    // 3. Verificar rutas de administrador
+    if (isAdminRoute(pathname)) {
       if (userRole !== 'admin') {
-        // Redirigir a dashboard de usuario si no es admin
+        // Usuario sin permisos de admin: redirigir a su dashboard
         return NextResponse.redirect(new URL('/dashboard/home', request.url))
       }
-    }
-
-    // Permitir acceso a rutas protegidas
-    if (protectedRoutes.some(route => pathname.startsWith(route))) {
+      // Admin accediendo a ruta de admin: permitir
       return NextResponse.next()
     }
 
-    // Si la ruta no está definida, permitir acceso
-    return NextResponse.next()
+    // 4. Verificar rutas protegidas de usuario
+    if (isProtectedRoute(pathname)) {
+      // Cualquier usuario autenticado puede acceder
+      return NextResponse.next()
+    }
 
-  } catch (error) {
-    // Token inválido, redirigir a login
-    return NextResponse.redirect(new URL('/auth/login', request.url))
+    // 5. Default-deny: si la ruta no está en ninguna lista conocida, bloquear.
+    // Redirigir según autenticación del usuario.
+    return NextResponse.redirect(new URL('/dashboard/home', request.url))
+
+  } catch {
+    // Token inválido o expirado: limpiar cookie y redirigir a login
+    const response = NextResponse.redirect(new URL('/auth/login', request.url))
+    response.cookies.delete('auth-token')
+    return response
   }
 }
 
@@ -75,13 +106,13 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
+     * Intercepta todas las rutas excepto:
+     * - api (API routes internas de Next.js)
+     * - _next/static (archivos estáticos)
+     * - _next/image (optimización de imágenes)
+     * - favicon.ico
+     * - archivos con extensión (imágenes, fuentes, etc.)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)',
   ],
 }
