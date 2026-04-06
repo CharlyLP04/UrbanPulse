@@ -7,6 +7,7 @@
  *  - Rutas protegidas bloqueadas sin token
  *  - Acceso de usuario autenticado a su dashboard
  *  - Bloqueo de acceso a rutas de administrador para rol 'user'
+ *  - Bloqueo de acceso a rutas de administrador para rol 'moderator'
  *  - Acceso de administrador a rutas de admin
  *  - Token inválido o expirado
  *  - Redirección de usuario ya autenticado que visita /auth/*
@@ -61,7 +62,7 @@ function buildRequest(pathname: string, tokenValue?: string): any {
 /**
  * Configura jwtVerify para devolver un payload JWT con el rol indicado.
  */
-function mockValidToken(role: 'user' | 'admin') {
+function mockValidToken(role: string) {
   ;(jwtVerify as jest.Mock).mockResolvedValue({
     payload: { sub: 'user-123', role },
   })
@@ -98,6 +99,7 @@ describe('Seguridad del Middleware - Control de Acceso por Rol (RBAC)', () => {
       '/public/explore',
       '/auth/login',
       '/auth/register',
+      '/auth/verify-email',
     ]
 
     test.each(rutasPublicas)(
@@ -124,6 +126,14 @@ describe('Seguridad del Middleware - Control de Acceso por Rol (RBAC)', () => {
       )
       expect(mockNext).not.toHaveBeenCalled()
     })
+
+    test('permite acceso a la nueva ruta pública "/auth/verify-email" sin token', async () => {
+      const request = buildRequest('/auth/verify-email')
+      await middleware(request)
+
+      expect(mockNext).toHaveBeenCalled()
+      expect(mockRedirectTo).not.toHaveBeenCalled()
+    })
   })
 
   // ── Protección de Rutas sin Token ──────────────────────────────────────────
@@ -147,6 +157,16 @@ describe('Seguridad del Middleware - Control de Acceso por Rol (RBAC)', () => {
         expect(mockNext).not.toHaveBeenCalled()
       }
     )
+
+    test('ruta protegida sin token redirige a login', async () => {
+      const request = buildRequest('/dashboard/home')
+      await middleware(request)
+
+      expect(mockRedirectTo).toHaveBeenCalledWith(
+        expect.objectContaining({ pathname: '/auth/login' })
+      )
+      expect(mockNext).not.toHaveBeenCalled()
+    })
 
     const rutasAdmin = ['/admin/dashboard', '/admin/moderation']
 
@@ -214,6 +234,32 @@ describe('Seguridad del Middleware - Control de Acceso por Rol (RBAC)', () => {
       )
       expect(mockNext).not.toHaveBeenCalled()
     })
+
+    test('ruta de admin bloqueada para rol user', async () => {
+      mockValidToken('user')
+      const request = buildRequest('/admin/dashboard', 'token-user')
+      await middleware(request)
+
+      expect(mockRedirectTo).toHaveBeenCalledWith(
+        expect.objectContaining({ pathname: '/dashboard/home' })
+      )
+      expect(mockNext).not.toHaveBeenCalled()
+    })
+  })
+
+  // ── Acceso de Usuario Autenticado (rol: moderator) ────────────────────────
+
+  describe('Usuario autenticado con rol "moderator"', () => {
+    test('ruta de admin bloqueada para rol moderator', async () => {
+      mockValidToken('moderator')
+      const request = buildRequest('/admin/dashboard', 'token-moderator')
+      await middleware(request)
+
+      expect(mockRedirectTo).toHaveBeenCalledWith(
+        expect.objectContaining({ pathname: '/dashboard/home' })
+      )
+      expect(mockNext).not.toHaveBeenCalled()
+    })
   })
 
   // ── Acceso de Administrador (rol: admin) ───────────────────────────────────
@@ -269,6 +315,17 @@ describe('Seguridad del Middleware - Control de Acceso por Rol (RBAC)', () => {
       expect(mockRedirectTo).toHaveBeenCalledWith(
         expect.objectContaining({ pathname: '/auth/login' })
       )
+    })
+
+    test('token inválido redirige a login', async () => {
+      mockInvalidToken()
+      const request = buildRequest('/dashboard/create-report', 'token-invalido')
+      await middleware(request)
+
+      expect(mockRedirectTo).toHaveBeenCalledWith(
+        expect.objectContaining({ pathname: '/auth/login' })
+      )
+      expect(mockNext).not.toHaveBeenCalled()
     })
 
     test('token expirado elimina la cookie auth-token', async () => {
@@ -336,6 +393,17 @@ describe('Seguridad del Middleware - Control de Acceso por Rol (RBAC)', () => {
       expect(mockRedirectTo).toHaveBeenCalledWith(
         expect.objectContaining({ pathname: '/auth/login' })
       )
+    })
+
+    test('ruta no definida deniega acceso por defecto', async () => {
+      mockValidToken('user')
+      const request = buildRequest('/ruta-no-definida', 'token-valido')
+      await middleware(request)
+
+      expect(mockRedirectTo).toHaveBeenCalledWith(
+        expect.objectContaining({ pathname: '/dashboard/home' })
+      )
+      expect(mockNext).not.toHaveBeenCalled()
     })
   })
 })
