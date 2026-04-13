@@ -12,7 +12,11 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage --watchAll=false",
     "test:ci": "jest --ci --coverage --watchAll=false",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prisma db seed": "node prisma/seed-runner.cjs"
+  },
+  "prisma": {
+    "seed": "node prisma/seed-runner.cjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^5.0.0",
