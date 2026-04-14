@@ -74,13 +74,22 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, location, categoryId } = body
+    const title = typeof body.title === 'string' ? body.title.trim() : ''
+    const description = typeof body.description === 'string' ? body.description.trim() : ''
+    const location =
+      typeof body.location === 'string' && body.location.trim().length > 0
+        ? body.location.trim()
+        : null
+    const categoryId =
+      typeof body.categoryId === 'string' && body.categoryId.trim().length > 0
+        ? body.categoryId.trim()
+        : ''
 
-    if (!title || !description) {
+    if (!title || !description || !categoryId) {
       return NextResponse.json(
         {
           success: false,
-          message: 'Faltan campos obligatorios (title, description)',
+          message: 'Faltan campos obligatorios (title, description, categoryId).',
         },
         { status: 400 }
       )
@@ -100,6 +109,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId },
+    })
+
+    if (!category) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'La categoría seleccionada no existe.',
+        },
+        { status: 404 }
+      )
+    }
+
     const report = await prisma.report.create({
       data: {
         title,
@@ -107,6 +130,16 @@ export async function POST(request: NextRequest) {
         location,
         userId: tokenPayload.userId,
         categoryId,
+      },
+      include: {
+        category: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
     })
 

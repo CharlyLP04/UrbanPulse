@@ -60,3 +60,24 @@ export function resetMatchMedia() {
 if (typeof HTMLCanvasElement !== 'undefined') {
   HTMLCanvasElement.prototype.getContext = jest.fn();
 }
+
+// Polyfill para Response.json crítico en Next.js API Routes bajo Jest/JSDOM antiguo
+if (typeof Response !== 'undefined' && !Response.json) {
+  Response.json = function(data, init) {
+    const headers = new Headers(init?.headers);
+    headers.set('Content-Type', 'application/json');
+    return new Response(JSON.stringify(data), { ...init, headers });
+  };
+}
+
+// Mock global del AuthProvider para salvar tests legacy de componentes que ahora lo requieren
+jest.mock('@/components/providers/auth-provider', () => ({
+  useAuth: () => ({
+    user: { id: 'test', name: 'Usuario Prueba', email: 'test@test.com', role: 'user' },
+    login: jest.fn().mockResolvedValue({ success: true, role: 'user' }),
+    logout: jest.fn(),
+    isLoading: false,
+  }),
+  AuthProvider: ({ children }) => children,
+  fetchApi: jest.fn().mockResolvedValue(new Response()),
+}), { virtual: true })

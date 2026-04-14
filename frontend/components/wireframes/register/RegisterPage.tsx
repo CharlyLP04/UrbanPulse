@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { FormEvent, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import RegisterBenefits from './RegisterBenefits'
 import RegisterForm from './RegisterForm'
 import RegisterProgressSteps from './RegisterProgressSteps'
@@ -43,14 +44,39 @@ export default function RegisterPage() {
     setForm((previous) => ({ ...previous, [field]: value }))
   }
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const router = useRouter()
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (form.password !== form.confirmPassword) {
       return
     }
 
-    setShowSuccess(true)
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.nombre,
+          email: form.email,
+          password: form.password
+        })
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setShowSuccess(true)
+        setTimeout(() => {
+          router.push('/auth/verify-email')
+        }, 3000)
+      } else {
+        alert(data.message || 'Error al registrar')
+      }
+    } catch (error) {
+      console.error('Registration error:', error)
+      alert('Error de conexión o de servidor.')
+    }
   }
 
   return (
