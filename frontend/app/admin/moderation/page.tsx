@@ -45,7 +45,7 @@ export default function AdminModerationPage() {
       })
       const data = await res.json()
       if (data.success) {
-        setReports((prev) => prev.map((r) => r.id === reportId ? { ...r, status: newStatus } : r))
+        setReports((prev) => prev.map((r) => r.id === reportId ? { ...r, status: newStatus as Report['status'] } : r))
         showToast('✅ Estado actualizado correctamente')
       } else {
         showToast('❌ Error al actualizar el estado')

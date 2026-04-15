@@ -11,6 +11,10 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  // Permite que Jest transforme paquetes ESM como jose
+  transformIgnorePatterns: [
+    '/node_modules/(?!(jose)/)',
+  ],
   collectCoverageFrom: [
     'components/**/*.{js,jsx,ts,tsx}',
     'app/**/*.{js,jsx,ts,tsx}',
@@ -19,4 +23,4 @@ const customJestConfig = {
   ],
 }
 
-module.exports = createJestConfig(customJestConfig)
+module.exports = createJestConfig(customJestConfig)

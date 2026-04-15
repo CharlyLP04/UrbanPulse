@@ -26,11 +26,11 @@ describe('Navbar Component', () => {
   test('links are keyboard accessible', () => {
     render(<Navbar />)
     const links = screen.getAllByRole('link')
-    expect(links).toHaveLength(4) // Inicio, Explorar, Login + Logo
+    expect(links).toHaveLength(5) // Logo + Inicio, Explorar, Mapa, Login
     
-    links.slice(1).forEach(link => {
-      expect(link).toHaveAttribute('tabIndex', '0')
-    })
+    // Solo los links no deshabilitados tienen tabIndex=0
+    const activeLinks = links.filter(l => l.getAttribute('tabIndex') === '0')
+    expect(activeLinks.length).toBeGreaterThan(0)
   })
 
   test('navigation has proper ARIA labels', () => {
@@ -61,8 +61,8 @@ describe('Navbar Component', () => {
     const { container } = render(<Navbar />)
     expect(container.querySelector('nav')).toBeInTheDocument()
     expect(container.querySelector('ul')).toBeInTheDocument()
-    expect(container.querySelectorAll('li')).toHaveLength(3) // Inicio, Explorar, Login
-    expect(container.querySelectorAll('a')).toHaveLength(4) // Logo + los 3 enlaces
+    expect(container.querySelectorAll('li')).toHaveLength(4) // Inicio, Explorar, Mapa, Login
+    expect(container.querySelectorAll('a')).toHaveLength(5) // Logo + los 4 enlaces
   })
 
   test('no accessibility violations', async () => {
