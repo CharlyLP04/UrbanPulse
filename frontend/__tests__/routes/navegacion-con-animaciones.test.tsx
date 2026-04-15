@@ -25,8 +25,9 @@ describe('Navegacion con Animaciones - Accesibilidad', () => {
     it('todos los enlaces son enfocables con Tab', () => {
       render(<Navbar />)
       const links = screen.getAllByRole('link')
-      
-      links.slice(1).forEach((link) => {
+      // Solo links activos (no deshabilitados) deben tener tabIndex=0
+      const activeLinks = links.slice(1).filter(l => l.getAttribute('aria-disabled') !== 'true')
+      activeLinks.forEach((link) => {
         expect(link).toHaveAttribute('tabIndex', '0')
       })
     })
@@ -34,7 +35,7 @@ describe('Navegacion con Animaciones - Accesibilidad', () => {
     it('el componente soporta aria-current en los enlaces', () => {
       render(<Navbar />)
       const links = screen.getAllByRole('link')
-      expect(links.length).toBe(4) // Logo, Inicio, Explorar, Login
+      expect(links.length).toBe(5) // Logo, Inicio, Explorar, Mapa, Login
     })
   })
 
@@ -68,7 +69,11 @@ describe('Navegacion con Animaciones - Accesibilidad', () => {
       render(<Navbar />)
       const links = screen.getAllByRole('link')
       const labels = links.map((link) => link.textContent)
-      expect(labels).toEqual(['URBANPULSE', 'Inicio', 'Explorar', 'Login'])
+      // Mapa incluye badge 'PRONTO' dentro del span
+      expect(labels[0]).toBe('URBANPULSE')
+      expect(labels[1]).toBe('Inicio')
+      expect(labels[2]).toBe('Explorar')
+      expect(labels[4]).toBe('Login')
     })
 
     it('los enlaces tienen href valido', () => {
@@ -77,7 +82,8 @@ describe('Navegacion con Animaciones - Accesibilidad', () => {
       expect(links[0]).toHaveAttribute('href', '/')
       expect(links[1]).toHaveAttribute('href', '/')
       expect(links[2]).toHaveAttribute('href', '/public/explore')
-      expect(links[3]).toHaveAttribute('href', '/auth/login')
+      expect(links[3]).toHaveAttribute('href', '#')   // Mapa deshabilitado (sin sesion)
+      expect(links[4]).toHaveAttribute('href', '/auth/login')
     })
   })
 })

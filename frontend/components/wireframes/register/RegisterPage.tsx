@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useMemo, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import RegisterBenefits from './RegisterBenefits'
 import RegisterForm from './RegisterForm'
@@ -22,7 +22,10 @@ const initialForm: RegisterData = {
 }
 
 export default function RegisterPage() {
+  const [mounted, setMounted] = useState(false)
   const [form, setForm] = useState<RegisterData>(initialForm)
+
+  useEffect(() => { setMounted(true) }, [])
   const [showSuccess, setShowSuccess] = useState(false)
 
   const passwordStrength = useMemo(() => {
@@ -77,6 +80,10 @@ export default function RegisterPage() {
       console.error('Registration error:', error)
       alert('Error de conexión o de servidor.')
     }
+  }
+
+  if (!mounted) {
+    return <div style={{ minHeight: '100vh', background: '#e8eef1' }} />
   }
 
   return (

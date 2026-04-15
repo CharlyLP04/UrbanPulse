@@ -80,6 +80,8 @@ export async function POST(request: NextRequest) {
       typeof body.location === 'string' && body.location.trim().length > 0
         ? body.location.trim()
         : null
+    const latitude = typeof body.latitude === 'number' ? body.latitude : null
+    const longitude = typeof body.longitude === 'number' ? body.longitude : null
     const categoryId =
       typeof body.categoryId === 'string' && body.categoryId.trim().length > 0
         ? body.categoryId.trim()
@@ -128,6 +130,8 @@ export async function POST(request: NextRequest) {
         title,
         description,
         location,
+        latitude,
+        longitude,
         userId: tokenPayload.userId,
         categoryId,
       },

@@ -134,9 +134,19 @@ export default function LoginPage() {
             verificationCode={verificationCode}
             onVerificationCodeChange={setVerificationCode}
             onVerify={onVerify}
-            onGoogleClick={() => {
-              demoLogin()
-              router.push('/dashboard/home')
+            onGoogleClick={async () => {
+              try {
+                const res = await fetch('/api/auth/google/url')
+                const data = await res.json()
+                if (data.url) {
+                  window.location.href = data.url
+                } else {
+                  setShowError(true)
+                }
+              } catch (e) {
+                console.error(e)
+                setShowError(true)
+              }
             }}
           />
         </div>

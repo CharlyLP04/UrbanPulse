@@ -1,60 +1,32 @@
 import nodemailer from 'nodemailer';
 
-// Configuración del transporter
-// Usa Ethereal si no hay variables de entorno (ideal para desarrollo local)
-function getTransporter() {
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-    return nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+/**
+ * Crea el transporter SMTP usando las variables de entorno configuradas.
+ * IMPORTANTE: Para despliegue en producción, configura las variables SMTP_* en tu
+ * archivo .env con un proveedor real (Gmail, SendGrid, AWS SES, etc.)
+ */
+function getTransporter(): nodemailer.Transporter {
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    throw new Error(
+      'Configuración SMTP incompleta. Define SMTP_HOST, SMTP_USER y SMTP_PASS en tu archivo .env. ' +
+      'Consulta .env.example para ver el formato correcto.'
+    );
   }
 
-  // Fallback a Ethereal (Development fallback)
-  console.warn("ATENCIÓN: Usando Ethereal Email (Development Mode) para el envío de correos. Configura variables SMTP en .env para producción.");
-  
-  // Para usar Ethereal es buena práctica generar una cuenta on-the-fly, 
-  // pero usaremos una configuración rápida si se omite por facilidad
   return nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
-    auth: {
-        user: 'test-user@ethereal.email', // Sustituible temporal
-        pass: 'test-password' // Sustituible temporal
-    }
+    host,
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: { user, pass },
   });
 }
 
-// Para evitar cold-starts de ethereal o mantener un test account activo persistente en memoria:
-let testAccount: nodemailer.TestAccount | null = null;
-let testTransporter: nodemailer.Transporter | null = null;
-
 export const sendEmail = async (to: string, subject: string, html: string) => {
-  let transporter: nodemailer.Transporter;
-
-  if (process.env.SMTP_HOST) {
-    transporter = getTransporter();
-  } else {
-    // Si no tenemos servidor real, generamos un Test Account de Ethereal asincrónicamente
-    if (!testAccount) {
-        testAccount = await nodemailer.createTestAccount();
-        testTransporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
-            secure: false, // true for 465, false for other ports
-            auth: {
-                user: testAccount.user, // generated ethereal user
-                pass: testAccount.pass, // generated ethereal password
-            },
-        });
-    }
-    transporter = testTransporter!;
-  }
+  const transporter = getTransporter();
 
   const from = process.env.SMTP_FROM || '"UrbanPulse" <no-reply@urbanpulse.com>';
 

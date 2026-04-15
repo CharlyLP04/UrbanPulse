@@ -8,6 +8,9 @@ import { useAuth } from '@/components/providers/auth-provider'
 type NavItem = {
   label: string
   href: string
+  disabled?: boolean
+  isCTA?: boolean
+  tooltip?: string
 }
 
 export function Navbar() {
@@ -18,10 +21,16 @@ export function Navbar() {
   const navItems: NavItem[] = [
     { label: 'Inicio', href: '/' },
     { label: 'Explorar', href: '/public/explore' },
+    { label: 'Mapa', href: user ? '/dashboard/map' : '#', disabled: !user, tooltip: user ? undefined : 'Inicia sesión para ver el mapa' },
   ]
 
   if (user) {
     navItems.push({ label: 'Dashboard', href: '/dashboard/home' })
+    navItems.push({ label: 'Mi Perfil', href: '/dashboard/profile' })
+    if (user.role === 'admin') {
+      navItems.push({ label: '⚙️ Admin', href: '/admin/dashboard' })
+    }
+    navItems.push({ label: '+ Crear Reporte', href: '/dashboard/create-report', isCTA: true })
   } else {
     navItems.push({ label: 'Login', href: '/auth/login' })
   }
@@ -113,23 +122,34 @@ export function Navbar() {
                   : pathname?.startsWith(item.href)
 
               return (
-                <li key={item.href}>
+                <li key={item.label}>
                   <Link
                     href={item.href}
                     ref={(element) => {
                       linkRefs.current[index] = element
                     }}
-                    tabIndex={0}
+                    tabIndex={item.disabled ? -1 : 0}
+                    aria-disabled={item.disabled ? "true" : undefined}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`relative flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
-                      isActive
+                    title={item.tooltip}
+                    className={`relative flex items-center justify-center gap-1 px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${
+                      item.disabled
+                        ? 'text-white/30 cursor-not-allowed pointer-events-none'
+                        : item.isCTA
+                        ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:-translate-y-0.5'
+                        : isActive
                         ? 'text-white bg-white/10 shadow-inner'
                         : 'text-blue-100 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {item.label}
-                    {isActive && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-sky-300 rounded-t-full shadow-[0_-2px_6px_rgba(125,211,252,0.6)]"></span>
+                    {item.disabled && item.tooltip && (
+                      <span className="text-[9px] font-bold bg-white/10 text-white/40 px-1 rounded leading-none py-0.5">
+                        PRONTO
+                      </span>
+                    )}
+                    {isActive && !item.isCTA && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-0.5 bg-sky-300 rounded-t-full shadow-[0_-2px_6px_rgba(125,211,252,0.6)]" />
                     )}
                   </Link>
                 </li>

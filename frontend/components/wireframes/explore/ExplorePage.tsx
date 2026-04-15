@@ -1,10 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useArrowMenuNavigation } from '@/components/wireframes/shared/useArrowMenuNavigation'
+import { useState, useEffect, useMemo } from 'react'
 import { getReports, Report } from '@/lib/api'
-import ExploreFilters from './ExploreFilters'
-import ExploreNavbar from './ExploreNavbar'
+import ExploreFilters, { FilterState } from './ExploreFilters'
 import ExploreReportsSection from './ExploreReportsSection'
 
 interface ExploreReport {
@@ -41,16 +39,20 @@ function mapApiReportToExplore(report: Report): ExploreReport {
 }
 
 export default function ExplorePage() {
+  const [mounted, setMounted] = useState(false)
   const [reports, setReports] = useState<ExploreReport[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { itemRefs, onKeyDown } = useArrowMenuNavigation<HTMLAnchorElement>()
+  const [filters, setFilters] = useState<FilterState>({ statuses: [], categories: [] })
+  const [rawReports, setRawReports] = useState<Report[]>([])
+
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     getReports()
       .then((data) => {
-        const mapped = data.map(mapApiReportToExplore)
-        setReports(mapped)
+        setRawReports(data)
+        setReports(data.map(mapApiReportToExplore))
       })
       .catch(() => setError('Error al cargar los reportes'))
       .finally(() => setLoading(false))
@@ -64,6 +66,32 @@ export default function ExplorePage() {
           : report
       )
     )
+  }
+
+  // Categorías únicas disponibles en los reportes cargados
+  const availableCategories = useMemo(() => {
+    const cats = rawReports.map((r) => r.category?.name).filter(Boolean) as string[]
+    return [...new Set(cats)]
+  }, [rawReports])
+
+  // Aplicar filtros
+  const filteredReports = useMemo(() => {
+    let result = reports
+    if (filters.statuses.length > 0) {
+      result = result.filter((r) => filters.statuses.includes(r.status))
+    }
+    if (filters.categories.length > 0) {
+      const catSet = new Set(filters.categories)
+      result = result.filter((r) => {
+        const raw = rawReports.find((rr) => rr.id === r.id)
+        return raw?.category?.name && catSet.has(raw.category.name)
+      })
+    }
+    return result
+  }, [reports, filters, rawReports])
+
+  if (!mounted) {
+    return <div style={{ minHeight: '100vh', background: '#e8eef1' }} />
   }
 
   if (loading) {
@@ -99,7 +127,6 @@ export default function ExplorePage() {
 
   return (
     <div className="explore-page">
-      <ExploreNavbar itemRefs={itemRefs} onKeyDown={onKeyDown} />
 
       <div className="page-header">
         <h1>Reportes Activos</h1>
@@ -107,8 +134,12 @@ export default function ExplorePage() {
       </div>
 
       <div className="main-content">
-        <ExploreFilters />
-        <ExploreReportsSection reports={reports} onVote={voteReport} />
+        <ExploreFilters
+          filters={filters}
+          availableCategories={availableCategories}
+          onChange={setFilters}
+        />
+        <ExploreReportsSection reports={filteredReports} onVote={voteReport} />
       </div>
 
       <style jsx global>{`

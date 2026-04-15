@@ -8,12 +8,21 @@ jest.mock('next/server', () => {
         return {
           status: init?.status || 200,
           json: async () => data,
-          headers: new Headers(init?.headers)
+          headers: new Headers(init?.headers),
+          cookies: { set: jest.fn() },
         } as unknown as Response
       }
     }
   }
 })
+
+// Mock @/lib/auth ANTES de importar el route para evitar que jose (ESM) rompa Jest
+jest.mock('@/lib/auth', () => ({
+  signAccessToken: jest.fn().mockResolvedValue('mock-access-token'),
+  signRefreshToken: jest.fn().mockResolvedValue('mock-refresh-token'),
+  verifyAccessToken: jest.fn(),
+}))
+
 import { POST } from '@/app/api/auth/login/route'
 import { prisma } from '@/lib/db'
 import { comparePassword } from '@/lib/password'
@@ -82,7 +91,7 @@ describe('Auth Login API', () => {
     expect(data.message).toBe('Por favor verifica tu correo electrónico antes de iniciar sesión.')
   })
 
-  test('Credenciales válidas lanzan 2FA y actualizan db', async () => {
+  test('Credenciales válidas: usuario verificado entra directo sin 2FA', async () => {
     mockFindUnique.mockResolvedValue({
       id: '1',
       email: 'admin@test.com',
@@ -106,16 +115,11 @@ describe('Auth Login API', () => {
 
     expect(res.status).toBe(200)
     expect(data.success).toBe(true)
-    expect(data.requiresVerification).toBe(true)
-    expect(data.email).toBe('admin@test.com')
-    
-    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
-      where: { id: '1' },
-      data: expect.objectContaining({
-        verificationCode: expect.any(String)
-      })
-    }))
-    expect(mockSendLogin2FACode).toHaveBeenCalledWith('admin@test.com', expect.any(String))
+    // Usuario verificado entra directo — no necesita 2FA
+    expect(data.requiresVerification).toBeFalsy()
+    // No debe enviarse 2FA ni actualizar nada en la BD
+    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockSendLogin2FACode).not.toHaveBeenCalled()
   })
 
   test('Credenciales inválidas (password incorrecto)', async () => {

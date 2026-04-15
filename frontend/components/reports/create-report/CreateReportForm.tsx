@@ -1,8 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { FormEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
+import { createReport, getCategories, Category } from '@/lib/api'
+import { useAuth } from '@/components/providers/auth-provider'
 import CreateReportSuccessModal from './CreateReportSuccessModal'
 import styles from './CreateReportPage.module.css'
 
@@ -36,8 +39,14 @@ export default function CreateReportForm() {
   })
   const [isGettingLocation, setIsGettingLocation] = useState(false)
   const [locationResolved, setLocationResolved] = useState(false)
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [dbCategories, setDbCategories] = useState<Category[]>([])
+  const [formError, setFormError] = useState<string | null>(null)
+  
+  const router = useRouter()
+  const { user } = useAuth()
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const selectedImagesRef = useRef<SelectedImage[]>([])
@@ -45,6 +54,12 @@ export default function CreateReportForm() {
   useEffect(() => {
     selectedImagesRef.current = selectedImages
   }, [selectedImages])
+
+  useEffect(() => {
+    getCategories()
+      .then((data) => setDbCategories(data))
+      .catch((err) => console.error('Error cargando categorias', err))
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -96,12 +111,11 @@ export default function CreateReportForm() {
       (position) => {
         const lat = position.coords.latitude
         const lon = position.coords.longitude
-        const mockAddress = `Av. Juárez #${Math.floor(Math.random() * 1000)}, Centro`
-
-        setDireccion(mockAddress)
+        setCoords({ lat, lng: lon })
+        setDireccion(`${lat.toFixed(6)}, ${lon.toFixed(6)}`)
         setLocationState({
           type: 'success',
-          message: `✓ Ubicación obtenida: ${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+          message: `✓ Coordenadas obtenidas: ${lat.toFixed(4)}, ${lon.toFixed(4)}. Puedes editar la dirección.`,
         })
         setLocationResolved(true)
         setIsGettingLocation(false)
@@ -117,20 +131,53 @@ export default function CreateReportForm() {
     )
   }
 
-  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setFormError(null)
 
-    if (selectedImages.length === 0) {
-      window.alert('⚠️ Debes subir al menos una imagen del problema')
+    if (!titulo.trim()) {
+      setFormError('⚠️ El título del reporte es obligatorio.')
+      return
+    }
+
+    if (!categoria) {
+      setFormError('⚠️ Debes seleccionar una categoría.')
+      return
+    }
+
+    if (!descripcion.trim()) {
+      setFormError('⚠️ La descripción es obligatoria.')
+      return
+    }
+
+    if (!user) {
+      setFormError('⚠️ Tu sesión ha expirado, vuelve a iniciar sesión.')
       return
     }
 
     setIsSubmitting(true)
 
-    window.setTimeout(() => {
+    try {
+      const locationParts = [direccion, referencia, ciudad].filter(Boolean)
+      const fullLocation = locationParts.join(', ')
+      await createReport({
+        title: titulo.trim(),
+        description: descripcion.trim(),
+        userId: user.id,
+        categoryId: categoria,
+        location: fullLocation || undefined,
+        latitude: coords?.lat,
+        longitude: coords?.lng,
+      })
+
       setShowSuccessModal(true)
+      setTimeout(() => {
+        router.push('/dashboard/home')
+      }, 2000)
+    } catch (error: any) {
+      setFormError(error.message || 'Error al crear el reporte. Inténtalo de nuevo.')
       setIsSubmitting(false)
-    }, 1500)
+    }
   }
 
   return (
@@ -138,6 +185,11 @@ export default function CreateReportForm() {
       <div className={styles.mainContent}>
         <div className={styles.formCard}>
           <form className={styles.formContainer} onSubmit={onSubmit} aria-label="Formulario de nuevo reporte">
+            {formError && (
+              <div role="alert" className="p-4 mb-6 text-sm text-red-800 rounded-lg bg-red-50 border border-red-200" style={{ fontWeight: 600 }}>
+                {formError}
+              </div>
+            )}
             <h2 className={styles.sectionTitle}>Información Básica</h2>
 
             <div className={styles.formGroup}>
@@ -169,14 +221,11 @@ export default function CreateReportForm() {
                 onChange={(event) => setCategoria(event.target.value)}
               >
                 <option value="">Selecciona una categoría</option>
-                <option value="baches">🚧 Baches y Pavimento</option>
-                <option value="alumbrado">💡 Alumbrado Público</option>
-                <option value="basura">🗑️ Basura y Limpieza</option>
-                <option value="agua">💧 Fugas de Agua</option>
-                <option value="parques">🌳 Parques y Jardines</option>
-                <option value="seguridad">🚨 Seguridad Pública</option>
-                <option value="transporte">🚌 Transporte Público</option>
-                <option value="otro">📋 Otro</option>
+                {dbCategories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -399,8 +448,8 @@ export default function CreateReportForm() {
             </div>
 
             <div className={styles.formActions}>
-              <Link href="/public/explore" className={`${styles.btn} ${styles.btnSecondary}`}>
-                Cancelar
+              <Link href="/dashboard/home" className={`${styles.btn} ${styles.btnSecondary}`}>
+                ← Cancelar
               </Link>
               <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={isSubmitting}>
                 {isSubmitting ? (

@@ -135,6 +135,8 @@ describe('Reports API Auth', () => {
         title: 'Bache',
         description: 'Bache grande',
         location: 'Calle 1',
+        latitude: null,
+        longitude: null,
         userId: 'token-user-id',
         categoryId: 'category-1',
       },
