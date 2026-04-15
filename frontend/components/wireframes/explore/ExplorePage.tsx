@@ -4,6 +4,10 @@ import { useState, useEffect, useMemo } from 'react'
 import { getReports, Report } from '@/lib/api'
 import ExploreFilters, { FilterState } from './ExploreFilters'
 import ExploreReportsSection from './ExploreReportsSection'
+import { useAuth } from '@/components/providers/auth-provider'
+import { useRouter } from 'next/navigation'
+
+
 
 interface ExploreReport {
   id: string
@@ -39,12 +43,15 @@ function mapApiReportToExplore(report: Report): ExploreReport {
 }
 
 export default function ExplorePage() {
+  const { user } = useAuth()
+  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [reports, setReports] = useState<ExploreReport[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filters, setFilters] = useState<FilterState>({ statuses: [], categories: [] })
   const [rawReports, setRawReports] = useState<Report[]>([])
+  const [mensaje, setMensaje] = useState('')
 
   useEffect(() => { setMounted(true) }, [])
 
@@ -58,14 +65,37 @@ export default function ExplorePage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const voteReport = (reportId: string) => {
-    setReports((previous) =>
-      previous.map((report) =>
-        report.id === reportId && report.status !== 'resuelto'
-          ? { ...report, votes: report.votes + 1 }
-          : report
+  const voteReport = async (reportId: string) => {
+    if (!user) {
+      router.push('/auth/login')
+      return
+    }
+  
+    try {
+      const res = await fetch(`/api/reports/${reportId}/vote`, {
+        method: 'POST',
+      })
+  
+      const data = await res.json()
+  
+      if (!res.ok) {
+        setMensaje(data.message || 'Error al votar')
+setTimeout(() => setMensaje(''), 3000)
+        return
+      }
+  
+      setReports((previous) =>
+        previous.map((report) =>
+          report.id === reportId
+            ? { ...report, votes: data.data.votesCount }
+            : report
+        )
       )
-    )
+    } catch (error) {
+      console.error(error)
+      setMensaje('Error al votar')
+setTimeout(() => setMensaje(''), 3000)
+    }
   }
 
   // Categorías únicas disponibles en los reportes cargados
@@ -96,7 +126,7 @@ export default function ExplorePage() {
 
   if (loading) {
     return (
-      <div className="explore-page">
+      <div className="explore-page"> 
         <div className="flex items-center justify-center min-h-[50vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -126,7 +156,11 @@ export default function ExplorePage() {
   }
 
   return (
-    <div className="explore-page">
+    <div className="explore-page"> {mensaje && (
+      <div className="fixed top-5 right-5 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in fade-in">
+        {mensaje}
+      </div>
+    )}
 
       <div className="page-header">
         <h1>Reportes Activos</h1>
