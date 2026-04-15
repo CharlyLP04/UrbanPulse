@@ -1,7 +1,6 @@
 import { Bebas_Neue, IBM_Plex_Sans } from 'next/font/google'
 import CreateReportForm from '@/components/reports/create-report/CreateReportForm'
 import CreateReportHeader from '@/components/reports/create-report/CreateReportHeader'
-import CreateReportNavbar from '@/components/reports/create-report/CreateReportNavbar'
 import styles from '@/components/reports/create-report/CreateReportPage.module.css'
 
 const bebasNeue = Bebas_Neue({
@@ -24,9 +23,9 @@ export const metadata = {
 export default function CreateReportPage() {
   return (
     <div className={`${styles.page} ${bebasNeue.variable} ${ibmPlexSans.variable}`}>
-      <CreateReportNavbar />
       <CreateReportHeader />
       <CreateReportForm />
     </div>
   )
 }
+

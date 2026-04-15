@@ -5,6 +5,8 @@ export interface Report {
   title: string
   description: string
   location?: string
+  latitude?: number
+  longitude?: number
   status: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED'
   userId: string
   categoryId?: string
@@ -93,6 +95,13 @@ const customFetch = async (input: RequestInfo | URL, init?: RequestInit): Promis
   return res;
 }
 
+export interface Category {
+  id: string
+  name: string
+  description?: string
+  color: string
+}
+
 export const getReports = async (): Promise<Report[]> => {
   const res = await customFetch('/api/reports', { cache: 'no-store' })
   if (!res.ok) throw new Error('Error al obtener reportes')
@@ -107,11 +116,20 @@ export const getReportById = async (id: string): Promise<Report> => {
   return json.data || json
 }
 
+export const getCategories = async (): Promise<Category[]> => {
+  const res = await customFetch('/api/categories', { cache: 'no-store' })
+  if (!res.ok) throw new Error('Error al obtener categorias')
+  const json = await res.json()
+  return json.data || json
+}
+
 export const createReport = async (
   data: { 
     title: string
     description: string
     location?: string
+    latitude?: number
+    longitude?: number
     userId: string
     categoryId?: string
   }
@@ -125,3 +143,4 @@ export const createReport = async (
   const json = await res.json()
   return json.data || json
 }
+

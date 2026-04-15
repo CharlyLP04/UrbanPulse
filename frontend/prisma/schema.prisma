@@ -44,7 +44,7 @@ model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String
-  password  String
+  password  String?
   role      Role     @default(USER)
   emailVerified Boolean @default(false) @map("email_verified")
   verificationCode String? @map("verification_code")
@@ -66,6 +66,8 @@ model Report {
   title       String
   description String
   location    String?
+  latitude    Float?
+  longitude   Float?
   status      ReportStatus @default(OPEN)
   userId      String       @map("user_id")
   categoryId  String?      @map("category_id")

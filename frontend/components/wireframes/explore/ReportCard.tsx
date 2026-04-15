@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 import { Report } from './types'
 
 type ReportCardProps = {
@@ -21,6 +24,19 @@ const getStatusLabel = (status: Report['status']) => {
 }
 
 export default function ReportCard({ report, onVote }: ReportCardProps) {
+  const [copied, setCopied] = useState(false)
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/public/explore/${report.id}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    } catch {
+      window.prompt('Copia este enlace:', url)
+    }
+  }
+
   return (
     <div
       className={`report-card ${report.status === 'urgente' ? 'urgente' : ''} ${
@@ -62,11 +78,11 @@ export default function ReportCard({ report, onVote }: ReportCardProps) {
             <span className="vote-count">{report.votes} votos</span>
           </div>
           <div className="action-btns">
-            <Link href="/public/explore/detail" className="btn-detail">
+            <Link href={`/public/explore/${report.id}`} className="btn-detail">
               Ver Detalles
             </Link>
-            <button type="button" className="btn-share">
-              Compartir
+            <button type="button" className="btn-share" onClick={handleShare}>
+              {copied ? '✅ Copiado' : '🔗 Compartir'}
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { comparePassword } from '@/lib/password'
+import { signAccessToken, signRefreshToken, TokenPayload } from '@/lib/auth'
 import { sendLogin2FACode } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
         name: true,
         role: true,
         password: true,
-        emailVerified: true // Extraer emailVerified
+        emailVerified: true
       },
     })
 
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const isValidPassword = await comparePassword(password, user.password)
+    const isValidPassword = await comparePassword(password, user.password ?? '')
 
     if (!isValidPassword) {
       return NextResponse.json(
@@ -52,30 +53,49 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // El usuario existe y tiene la contraseña correcta. En lugar de dar el JWT, mandamos el 2FA.
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
-    const verificationCodeExpiry = new Date()
-    verificationCodeExpiry.setMinutes(verificationCodeExpiry.getMinutes() + 5) // 5 minutos de validez para 2FA
+    // Email ya verificado → iniciar sesión directamente sin 2FA
+    const normalizedRole = user.role.toLowerCase()
 
-    await prisma.user.update({
-        where: { id: user.id },
-        data: {
-            verificationCode,
-            verificationCodeExpiry
-        }
-    })
+    const tokenPayload: TokenPayload = {
+      userId: user.id,
+      email: user.email,
+      role: normalizedRole,
+    }
 
-    await sendLogin2FACode(user.email, verificationCode)
+    const accessToken = await signAccessToken(tokenPayload)
+    const refreshToken = await signRefreshToken(tokenPayload)
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
         success: true,
-        requiresVerification: true,
-        message: 'Código de verificación enviado al correo.',
-        email: user.email // Devolvemos el email para el siguiente paso
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: normalizedRole,
+        },
       },
       { status: 200 }
     )
+
+    response.cookies.set('auth-token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60,
+      path: '/',
+    })
+
+    response.cookies.set('refresh-token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60,
+      path: '/',
+    })
+
+    return response
+
   } catch (error) {
     console.error('Error en login:', error)
     return NextResponse.json(
