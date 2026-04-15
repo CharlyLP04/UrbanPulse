@@ -7,8 +7,9 @@ import { useAuth } from '@/components/providers/auth-provider'
 import LoginBranding from './LoginBranding'
 import { LoginForm } from '../../forms/LoginForm'
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function LoginPage() {
+function LoginPageContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showError, setShowError] = useState(false)
@@ -155,5 +156,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-80px)] w-full flex items-center justify-center bg-[#0f4c75] text-white font-bold">Cargando...</div>}>
+      <LoginPageContent />
+    </Suspense>
   )
 }
