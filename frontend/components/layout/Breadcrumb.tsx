@@ -60,8 +60,8 @@ export function Breadcrumb({ items }: { items?: BreadcrumbItem[] }) {
   }
 
   return (
-    <nav aria-label="Ruta de navegación" className="px-4 py-2">
-      <ol className="flex items-center gap-1 text-sm">
+    <nav aria-label="Ruta de navegación" className="px-6 py-3 bg-white/70 backdrop-blur border-b border-gray-100">
+      <ol className="flex items-center gap-2 text-sm text-gray-500">
         {breadcrumbItems.map((item, index) => {
           const isLast = index === breadcrumbItems.length - 1
 
@@ -85,19 +85,19 @@ export function Breadcrumb({ items }: { items?: BreadcrumbItem[] }) {
               )}
 
               {isLast ? (
-                <span className="font-medium text-gray-900" aria-current="page">
+                <span className="font-semibold text-sky-600" aria-current="page">
                   {item.label}
                 </span>
               ) : (
                 <>
                   <Link
                     href={item.href}
-                    className="text-gray-500 hover:text-blue-600 transition-colors duration-200"
+                    className="hover:text-sky-600 transition-colors duration-200"
                   >
                     {item.label}
                   </Link>
                   <svg
-                    className="w-4 h-4 text-gray-400"
+                    className="w-4 h-4 text-gray-300"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

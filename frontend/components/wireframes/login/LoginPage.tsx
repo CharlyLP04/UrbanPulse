@@ -6,13 +6,17 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/components/providers/auth-provider'
 import LoginBranding from './LoginBranding'
 import { LoginForm } from '../../forms/LoginForm'
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function LoginPage() {
+function LoginPageContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showError, setShowError] = useState(false)
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const searchParams = useSearchParams()
+  const redirect = searchParams.get('redirect') || '/dashboard/home'
   
   // 2FA State
   const [requiresVerification, setRequiresVerification] = useState(false)
@@ -74,7 +78,7 @@ export default function LoginPage() {
         if (result.role === 'admin') {
           router.push('/admin/dashboard')
         } else {
-          router.push('/dashboard/home')
+          router.push(redirect)
         }
       }
     } else {
@@ -100,7 +104,7 @@ export default function LoginPage() {
       if (result.role === 'admin') {
         router.push('/admin/dashboard')
       } else {
-        router.push('/dashboard/home')
+        router.push(redirect)
       }
     } else {
       setShowError(true)
@@ -114,9 +118,9 @@ export default function LoginPage() {
       {/* Background overlay effect */}
       <div className="absolute inset-0 bg-white/5 opacity-40 mix-blend-overlay pointer-events-none"></div>
 
-      <Link href="/public/index-wireframe" className="absolute top-4 left-4 lg:top-8 lg:left-8 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium transition-all text-sm backdrop-blur-md z-20 border border-white/20">
-        ← Volver al Inicio
-      </Link>
+      <Link href="/" className="absolute top-4 left-4 lg:top-8 lg:left-8 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium transition-all text-sm backdrop-blur-md z-20 border border-white/20">
+  ← Volver al Inicio
+</Link>
 
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col md:flex-row items-stretch relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-500 my-auto">
         <LoginBranding />
@@ -152,5 +156,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-80px)] w-full flex items-center justify-center bg-[#0f4c75] text-white font-bold">Cargando...</div>}>
+      <LoginPageContent />
+    </Suspense>
   )
 }

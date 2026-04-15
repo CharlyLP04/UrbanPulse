@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import styles from './LandingPage.module.css'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/components/providers/auth-provider'
 
 const navItems = [
   { label: 'Inicio', href: '#inicio' },
@@ -11,6 +13,16 @@ const navItems = [
 ]
 
 export default function LandingPage() {
+  const router = useRouter()
+  const { user } = useAuth()
+
+  const handleCrearReporte = () => {
+    if (!user) {
+      router.push('/auth/login?redirect=/dashboard/create-report')
+    } else {
+      router.push('/dashboard/create-report')
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -27,9 +39,9 @@ export default function LandingPage() {
             urbanas de su ciudad. Tu voz cuenta, tu voto importa.
           </p>
           <div className={styles.heroButtons}>
-            <Link href="/auth/register" className={styles.btnPrimary}>
+            <button onClick={handleCrearReporte} className={styles.btnPrimary}>
               Crear Reporte Ahora
-            </Link>
+            </button>
             <Link href="#como-funciona" className={styles.btnSecondary}>
               Ver Cómo Funciona
             </Link>
@@ -95,9 +107,18 @@ export default function LandingPage() {
       <section className={styles.ctaSection}>
         <h2>¿Listo para hacer la diferencia?</h2>
         <p>Únete a miles de ciudadanos comprometidos con mejorar su ciudad</p>
-        <Link href="/auth/register" className={styles.btnWhite}>
+        <button
+          onClick={() => {
+            if (!user) {
+              router.push('/auth/register')
+            } else {
+              router.push('/dashboard/create-report')
+            }
+          }}
+          className={styles.btnWhite}
+        >
           Registrarme Gratis
-        </Link>
+        </button>
       </section>
 
       <footer id="contacto" className={styles.footer}>
